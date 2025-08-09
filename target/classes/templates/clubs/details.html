@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title} ?: 'Club Details'">Club Details</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" th:href="@{/}">
+                <i class="fas fa-graduation-cap me-2"></i>
+                College Events
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/}">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/events}">Events</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" th:href="@{/clubs}">Clubs</a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/login}">Login</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/register}">Register</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Breadcrumb -->
+    <div class="container mt-3">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a th:href="@{/}" class="text-decoration-none">Home</a></li>
+                <li class="breadcrumb-item"><a th:href="@{/clubs}" class="text-decoration-none">Clubs</a></li>
+                <li class="breadcrumb-item active" th:text="${club.clubName}">Club Name</li>
+            </ol>
+        </nav>
+    </div>
+
+    <!-- Club Header -->
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-12">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col-md-2 text-center">
+                                <img th:if="${club.logoUrl}" 
+                                     th:src="${club.logoUrl}" 
+                                     th:alt="${club.clubName}" 
+                                     class="img-fluid rounded-circle mb-3"
+                                     style="width: 120px; height: 120px; object-fit: cover;">
+                                <div th:unless="${club.logoUrl}" 
+                                     class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3"
+                                     style="width: 120px; height: 120px;">
+                                    <i class="fas fa-users fa-3x"></i>
+                                </div>
+                            </div>
+                            <div class="col-md-7">
+                                <h1 class="display-5 fw-bold mb-2" th:text="${club.clubName}">Club Name</h1>
+                                <p class="lead text-muted mb-3" th:text="${club.description}">Club description goes here...</p>
+                                
+                                <div class="row">
+                                    <div class="col-sm-6">
+                                        <strong>Club Head:</strong>
+                                        <span th:if="${club.head}" th:text="${club.head.name}">Head Name</span>
+                                        <span th:unless="${club.head}" class="text-muted">Not assigned</span>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <strong>Contact:</strong>
+                                        <span th:if="${club.contactEmail}">
+                                            <a th:href="'mailto:' + ${club.contactEmail}" 
+                                               th:text="${club.contactEmail}" 
+                                               class="text-decoration-none"></a>
+                                        </span>
+                                        <span th:unless="${club.contactEmail}" class="text-muted">Not provided</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="row mt-2">
+                                    <div class="col-sm-6">
+                                        <strong>Founded:</strong>
+                                        <span th:text="${#temporals.format(club.createdAt, 'MMMM yyyy')}">January 2024</span>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <strong>Status:</strong>
+                                        <span class="badge bg-success" th:if="${club.isActive}">Active</span>
+                                        <span class="badge bg-secondary" th:unless="${club.isActive}">Inactive</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3 text-end">
+                                <div class="d-grid gap-2">
+                                    <button type="button" 
+                                            class="btn btn-success btn-lg"
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#joinModal">
+                                        <i class="fas fa-plus me-2"></i>Join Club
+                                    </button>
+                                    <a th:href="@{/clubs/{id}/members(id=${club.clubId})}" 
+                                       class="btn btn-outline-primary">
+                                        <i class="fas fa-users me-2"></i>View Members
+                                    </a>
+                                    <a th:href="@{/clubs/{id}/events(id=${club.clubId})}" 
+                                       class="btn btn-outline-secondary">
+                                        <i class="fas fa-calendar me-2"></i>View Events
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Club Statistics -->
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card text-center border-primary">
+                    <div class="card-body">
+                        <i class="fas fa-users text-primary fa-2x mb-2"></i>
+                        <h3 class="fw-bold text-primary" th:text="${memberCount}">0</h3>
+                        <p class="card-text">Active Members</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card text-center border-success">
+                    <div class="card-body">
+                        <i class="fas fa-calendar-check text-success fa-2x mb-2"></i>
+                        <h3 class="fw-bold text-success" th:text="${eventCount}">0</h3>
+                        <p class="card-text">Total Events</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card text-center border-info">
+                    <div class="card-body">
+                        <i class="fas fa-trophy text-info fa-2x mb-2"></i>
+                        <h3 class="fw-bold text-info">5</h3>
+                        <p class="card-text">Achievements</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Events and Activities -->
+    <div class="container mt-5">
+        <div class="row">
+            <!-- Recent Events -->
+            <div class="col-lg-6">
+                <div class="card h-100">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-calendar-alt me-2"></i>Recent Events
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div th:if="${not #lists.isEmpty(events)}">
+                            <div class="event-item border-bottom py-3" th:each="event, iterStat : ${events}" th:if="${iterStat.index < 5}">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h6 class="mb-1" th:text="${event.eventName}">Event Name</h6>
+                                        <p class="text-muted mb-1" th:text="${#strings.abbreviate(event.description, 100)}">Event description...</p>
+                                        <small class="text-muted">
+                                            <i class="fas fa-calendar me-1"></i>
+                                            <span th:text="${#temporals.format(event.eventDate, 'MMM dd, yyyy')}">Date</span>
+                                        </small>
+                                    </div>
+                                    <span class="badge bg-primary" th:text="${event.eventStatus}">Status</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div th:if="${#lists.isEmpty(events)}" class="text-center py-4">
+                            <i class="fas fa-calendar-times text-muted fa-3x mb-3"></i>
+                            <p class="text-muted">No events organized yet</p>
+                        </div>
+                        <div class="text-center mt-3" th:if="${not #lists.isEmpty(events)}">
+                            <a th:href="@{/clubs/{id}/events(id=${club.clubId})}" 
+                               class="btn btn-sm btn-outline-primary">
+                                View All Events
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Club Members Preview -->
+            <div class="col-lg-6">
+                <div class="card h-100">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-users me-2"></i>Club Members
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div th:if="${not #lists.isEmpty(club.members)}">
+                            <div class="member-item d-flex align-items-center py-2" 
+                                 th:each="member, iterStat : ${club.members}" 
+                                 th:if="${iterStat.index < 5}">
+                                <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3"
+                                     style="width: 40px; height: 40px;">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <div>
+                                    <h6 class="mb-0" th:text="${member.user.name}">Member Name</h6>
+                                    <small class="text-muted" th:text="${member.role}">Role</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div th:if="${#lists.isEmpty(club.members)}" class="text-center py-4">
+                            <i class="fas fa-user-plus text-muted fa-3x mb-3"></i>
+                            <p class="text-muted">No members yet. Be the first to join!</p>
+                        </div>
+                        <div class="text-center mt-3" th:if="${not #lists.isEmpty(club.members)}">
+                            <a th:href="@{/clubs/{id}/members(id=${club.clubId})}" 
+                               class="btn btn-sm btn-outline-success">
+                                View All Members
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Join Club Modal -->
+    <div class="modal fade" id="joinModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Join <span th:text="${club.clubName}">Club</span></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to join <strong th:text="${club.clubName}">this club</strong>?</p>
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        You will need to be approved by the club head before becoming an active member.
+                    </div>
+                    <div class="mb-3" th:if="${club.head}">
+                        <strong>Club Head:</strong> <span th:text="${club.head.name}">Head Name</span>
+                    </div>
+                    <div class="mb-3" th:if="${club.contactEmail}">
+                        <strong>Contact:</strong> 
+                        <a th:href="'mailto:' + ${club.contactEmail}" 
+                           th:text="${club.contactEmail}" 
+                           class="text-decoration-none"></a>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <form th:action="@{/clubs/{id}/join(id=${club.clubId})}" method="post" class="d-inline">
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-check me-1"></i>Join Club
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-light py-4 mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>College Event Management</h5>
+                    <p class="mb-0">Connecting students through events and clubs</p>
+                </div>
+                <div class="col-md-6 text-end">
+                    <p class="mb-0">&copy; 2024 College Event Management. All rights reserved.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script th:src="@{/js/app.js}"></script>
+</body>
+</html>

@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title} ?: 'Create Club'">Create Club</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" th:href="@{/}">
+                <i class="fas fa-graduation-cap me-2"></i>
+                College Events
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/}">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/events}">Events</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" th:href="@{/clubs}">Clubs</a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/login}">Login</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/register}">Register</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Breadcrumb -->
+    <div class="container mt-3">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a th:href="@{/}" class="text-decoration-none">Home</a></li>
+                <li class="breadcrumb-item"><a th:href="@{/clubs}" class="text-decoration-none">Clubs</a></li>
+                <li class="breadcrumb-item active">Create Club</li>
+            </ol>
+        </nav>
+    </div>
+
+    <!-- Create Club Form -->
+    <div class="container mt-4">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <h4 class="mb-0">
+                            <i class="fas fa-plus-circle me-2"></i>Create New Club
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        <form th:action="@{/clubs/create}" th:object="${club}" method="post">
+                            
+                            <!-- Club Name -->
+                            <div class="mb-3">
+                                <label for="clubName" class="form-label fw-bold">
+                                    <i class="fas fa-tag me-1"></i>Club Name *
+                                </label>
+                                <input type="text" 
+                                       class="form-control" 
+                                       id="clubName" 
+                                       th:field="*{clubName}"
+                                       th:classappend="${#fields.hasErrors('clubName')} ? 'is-invalid' : ''"
+                                       placeholder="Enter club name"
+                                       required>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('clubName')}" 
+                                     th:errors="*{clubName}"></div>
+                                <div class="form-text">Choose a unique and descriptive name for your club.</div>
+                            </div>
+
+                            <!-- Description -->
+                            <div class="mb-3">
+                                <label for="description" class="form-label fw-bold">
+                                    <i class="fas fa-align-left me-1"></i>Description
+                                </label>
+                                <textarea class="form-control" 
+                                          id="description" 
+                                          th:field="*{description}"
+                                          th:classappend="${#fields.hasErrors('description')} ? 'is-invalid' : ''"
+                                          rows="4" 
+                                          placeholder="Describe your club's purpose, activities, and goals..."></textarea>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('description')}" 
+                                     th:errors="*{description}"></div>
+                                <div class="form-text">Provide a detailed description to help students understand what your club is about.</div>
+                            </div>
+
+                            <!-- Contact Email -->
+                            <div class="mb-3">
+                                <label for="contactEmail" class="form-label fw-bold">
+                                    <i class="fas fa-envelope me-1"></i>Contact Email
+                                </label>
+                                <input type="email" 
+                                       class="form-control" 
+                                       id="contactEmail" 
+                                       th:field="*{contactEmail}"
+                                       th:classappend="${#fields.hasErrors('contactEmail')} ? 'is-invalid' : ''"
+                                       placeholder="club@college.edu">
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('contactEmail')}" 
+                                     th:errors="*{contactEmail}"></div>
+                                <div class="form-text">Official email address for club communications.</div>
+                            </div>
+
+                            <!-- Logo URL -->
+                            <div class="mb-3">
+                                <label for="logoUrl" class="form-label fw-bold">
+                                    <i class="fas fa-image me-1"></i>Logo URL
+                                </label>
+                                <input type="url" 
+                                       class="form-control" 
+                                       id="logoUrl" 
+                                       th:field="*{logoUrl}"
+                                       th:classappend="${#fields.hasErrors('logoUrl')} ? 'is-invalid' : ''"
+                                       placeholder="https://example.com/logo.png">
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('logoUrl')}" 
+                                     th:errors="*{logoUrl}"></div>
+                                <div class="form-text">Optional: Provide a URL to your club's logo image.</div>
+                            </div>
+
+                            <!-- Form Actions -->
+                            <div class="d-flex justify-content-between">
+                                <a th:href="@{/clubs}" class="btn btn-outline-secondary">
+                                    <i class="fas fa-arrow-left me-1"></i>Cancel
+                                </a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save me-1"></i>Create Club
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Guidelines Card -->
+                <div class="card mt-4">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-info-circle me-2"></i>Club Creation Guidelines
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6 class="fw-bold">Requirements:</h6>
+                                <ul class="list-unstyled">
+                                    <li><i class="fas fa-check text-success me-2"></i>Unique club name</li>
+                                    <li><i class="fas fa-check text-success me-2"></i>Clear description</li>
+                                    <li><i class="fas fa-check text-success me-2"></i>Valid contact information</li>
+                                    <li><i class="fas fa-check text-success me-2"></i>Compliance with college policies</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="fw-bold">Next Steps:</h6>
+                                <ul class="list-unstyled">
+                                    <li><i class="fas fa-arrow-right text-primary me-2"></i>Club will be reviewed</li>
+                                    <li><i class="fas fa-arrow-right text-primary me-2"></i>Approval notification sent</li>
+                                    <li><i class="fas fa-arrow-right text-primary me-2"></i>Start recruiting members</li>
+                                    <li><i class="fas fa-arrow-right text-primary me-2"></i>Organize events</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-light py-4 mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>College Event Management</h5>
+                    <p class="mb-0">Connecting students through events and clubs</p>
+                </div>
+                <div class="col-md-6 text-end">
+                    <p class="mb-0">&copy; 2024 College Event Management. All rights reserved.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script th:src="@{/js/app.js}"></script>
+    
+    <!-- Form Enhancement Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Auto-generate contact email suggestion
+            const clubNameInput = document.getElementById('clubName');
+            const contactEmailInput = document.getElementById('contactEmail');
+            
+            clubNameInput.addEventListener('input', function() {
+                if (!contactEmailInput.value) {
+                    const clubName = this.value.toLowerCase()
+                        .replace(/[^a-z0-9\s]/g, '')
+                        .replace(/\s+/g, '');
+                    if (clubName) {
+                        contactEmailInput.placeholder = clubName + '@college.edu';
+                    }
+                }
+            });
+            
+            // Logo preview (if URL is provided)
+            const logoUrlInput = document.getElementById('logoUrl');
+            logoUrlInput.addEventListener('change', function() {
+                // You could add logo preview functionality here
+                console.log('Logo URL updated:', this.value);
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+package com.college.eventmanagement.model;
+
+public enum NotificationType {
+    EVENT_CREATED,
+    EVENT_UPDATED,
+    EVENT_CANCELLED,
+    EVENT_REMINDER,
+    REGISTRATION_CONFIRMED,
+    REGISTRATION_CANCELLED,
+    CLUB_INVITATION,
+    GENERAL_ANNOUNCEMENT,
+    SYSTEM_NOTIFICATION
+}

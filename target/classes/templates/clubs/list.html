@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title} ?: 'Clubs'">Clubs</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" th:href="@{/}">
+                <i class="fas fa-graduation-cap me-2"></i>
+                College Events
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/}">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/events}">Events</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" th:href="@{/clubs}">Clubs</a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/login}">Login</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/register}">Register</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Header Section -->
+    <div class="bg-gradient text-white py-5">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1 class="display-4 fw-bold mb-3">
+                        <i class="fas fa-users me-3"></i>Student Clubs
+                    </h1>
+                    <p class="lead mb-0">Discover and join student organizations that match your interests</p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <div class="d-flex justify-content-end align-items-center">
+                        <div class="text-center me-4">
+                            <h3 class="mb-0" th:text="${totalClubs}">0</h3>
+                            <small>Active Clubs</small>
+                        </div>
+                        <a href="#" class="btn btn-light btn-lg">
+                            <i class="fas fa-plus me-2"></i>Create Club
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search and Filter Section -->
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-md-8">
+                <form th:action="@{/clubs}" method="get" class="d-flex">
+                    <input type="text" 
+                           name="search" 
+                           class="form-control me-2" 
+                           placeholder="Search clubs by name..." 
+                           th:value="${searchQuery}">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-search me-1"></i>Search
+                    </button>
+                </form>
+            </div>
+            <div class="col-md-4 text-end">
+                <div class="dropdown">
+                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                        <i class="fas fa-filter me-1"></i>Filter
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" th:href="@{/clubs}">All Clubs</a></li>
+                        <li><a class="dropdown-item" href="#">Academic</a></li>
+                        <li><a class="dropdown-item" href="#">Sports</a></li>
+                        <li><a class="dropdown-item" href="#">Cultural</a></li>
+                        <li><a class="dropdown-item" href="#">Technical</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alert Messages -->
+    <div class="container mt-3" th:if="${param.error}">
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            <span th:text="${param.error}">Error message</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    </div>
+
+    <div class="container mt-3" th:if="${param.success}">
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle me-2"></i>
+            <span th:text="${param.success}">Success message</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    </div>
+
+    <!-- Clubs Grid -->
+    <div class="container mt-4 mb-5">
+        <div class="row" th:if="${not #lists.isEmpty(clubs)}">
+            <div class="col-lg-4 col-md-6 mb-4" th:each="club : ${clubs}">
+                <div class="card club-card h-100 shadow-sm">
+                    <div class="card-body text-center">
+                        <!-- Club Logo -->
+                        <div class="mb-3">
+                            <img th:if="${club.logoUrl}" 
+                                 th:src="${club.logoUrl}" 
+                                 th:alt="${club.clubName}" 
+                                 class="club-logo">
+                            <div th:unless="${club.logoUrl}" 
+                                 class="club-logo bg-primary text-white d-flex align-items-center justify-content-center mx-auto">
+                                <i class="fas fa-users fa-2x"></i>
+                            </div>
+                        </div>
+                        
+                        <!-- Club Info -->
+                        <h5 class="card-title fw-bold" th:text="${club.clubName}">Club Name</h5>
+                        <p class="card-text text-muted" 
+                           th:text="${#strings.abbreviate(club.description, 100)}"
+                           th:title="${club.description}">
+                            Club description...
+                        </p>
+                        
+                        <!-- Club Stats -->
+                        <div class="row text-center mb-3">
+                            <div class="col-6">
+                                <small class="text-muted">Members</small>
+                                <div class="fw-bold" th:text="${#lists.size(club.members ?: {})}">0</div>
+                            </div>
+                            <div class="col-6">
+                                <small class="text-muted">Events</small>
+                                <div class="fw-bold" th:text="${#lists.size(club.events ?: {})}">0</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Club Head -->
+                        <div class="mb-3" th:if="${club.head}">
+                            <small class="text-muted">Head:</small>
+                            <div class="fw-bold" th:text="${club.head.name}">Club Head</div>
+                        </div>
+                        
+                        <!-- Action Buttons -->
+                        <div class="d-grid gap-2">
+                            <a th:href="@{/clubs/{id}(id=${club.clubId})}" 
+                               class="btn btn-primary">
+                                <i class="fas fa-eye me-1"></i>View Details
+                            </a>
+                            <div class="btn-group" role="group">
+                                <a th:href="@{/clubs/{id}/events(id=${club.clubId})}" 
+                                   class="btn btn-outline-secondary btn-sm">
+                                    <i class="fas fa-calendar me-1"></i>Events
+                                </a>
+                                <a th:href="@{/clubs/{id}/members(id=${club.clubId})}" 
+                                   class="btn btn-outline-secondary btn-sm">
+                                    <i class="fas fa-users me-1"></i>Members
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Card Footer -->
+                    <div class="card-footer bg-transparent">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-muted">
+                                <i class="fas fa-calendar-alt me-1"></i>
+                                Created <span th:text="${#temporals.format(club.createdAt, 'MMM yyyy')}">Jan 2024</span>
+                            </small>
+                            <button type="button" 
+                                    class="btn btn-success btn-sm"
+                                    data-bs-toggle="modal" 
+                                    th:data-bs-target="'#joinModal' + ${club.clubId}">
+                                <i class="fas fa-plus me-1"></i>Join
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Join Club Modal -->
+                <div class="modal fade" th:id="'joinModal' + ${club.clubId}" tabindex="-1">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Join <span th:text="${club.clubName}">Club</span></h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <p>Are you sure you want to join <strong th:text="${club.clubName}">this club</strong>?</p>
+                                <div class="alert alert-info">
+                                    <i class="fas fa-info-circle me-2"></i>
+                                    You will need to be approved by the club head before becoming an active member.
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <form th:action="@{/clubs/{id}/join(id=${club.clubId})}" method="post" class="d-inline">
+                                    <button type="submit" class="btn btn-success">
+                                        <i class="fas fa-check me-1"></i>Join Club
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- No Clubs Found -->
+        <div class="row" th:if="${#lists.isEmpty(clubs)}">
+            <div class="col-12">
+                <div class="text-center py-5">
+                    <i class="fas fa-users text-muted" style="font-size: 4rem;"></i>
+                    <h3 class="mt-3 text-muted">No Clubs Found</h3>
+                    <p class="text-muted mb-4" th:if="${searchQuery}">
+                        No clubs found matching "<span th:text="${searchQuery}"></span>". 
+                        <a th:href="@{/clubs}" class="text-decoration-none">View all clubs</a>
+                    </p>
+                    <p class="text-muted mb-4" th:unless="${searchQuery}">
+                        There are currently no active clubs. Be the first to create one!
+                    </p>
+                    <a href="#" class="btn btn-primary">
+                        <i class="fas fa-plus me-2"></i>Create New Club
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-light py-4 mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>College Event Management</h5>
+                    <p class="mb-0">Connecting students through events and clubs</p>
+                </div>
+                <div class="col-md-6 text-end">
+                    <p class="mb-0">&copy; 2024 College Event Management. All rights reserved.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script th:src="@{/js/app.js}"></script>
+</body>
+</html>
