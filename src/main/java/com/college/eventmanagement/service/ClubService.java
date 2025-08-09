@@ -1,6 +1,7 @@
 package com.college.eventmanagement.service;
 
 import com.college.eventmanagement.model.Club;
+import com.college.eventmanagement.model.User;
 import com.college.eventmanagement.repository.ClubRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -68,5 +69,29 @@ public class ClubService {
 
     public List<Club> searchClubs(String keyword) {
         return clubRepository.findByClubNameContainingIgnoreCaseAndIsActiveTrue(keyword);
+    }
+    
+    public List<Club> getClubsByHead(User user) {
+        return clubRepository.findByHeadAndIsActiveTrue(user);
+    }
+    
+    public boolean isUserClubHead(User user, Club club) {
+        return club.getHead() != null && club.getHead().getUserId().equals(user.getUserId());
+    }
+    
+    public long getTotalMembersByHead(User clubHead) {
+        List<Club> clubs = getClubsByHead(clubHead);
+        return clubs.stream()
+            .mapToLong(club -> club.getMembers() != null ? club.getMembers().size() : 0)
+            .sum();
+    }
+    
+    public List<Club> getClubsByMember(User user) {
+        // Get clubs where user is a member
+        return clubRepository.findAll().stream()
+            .filter(club -> club.getMembers() != null && 
+                    club.getMembers().stream().anyMatch(member -> 
+                        member.getUser().getUserId().equals(user.getUserId())))
+            .toList();
     }
 }

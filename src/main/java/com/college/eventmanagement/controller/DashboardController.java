@@ -56,8 +56,21 @@ public class DashboardController {
 
         // Role-specific data
         if (currentUser.getRole() == Role.ADMIN) {
+            // Admin dashboard data
             model.addAttribute("totalStudents", userService.getUserCountByRole(Role.STUDENT));
             model.addAttribute("totalClubHeads", userService.getUserCountByRole(Role.CLUB_HEAD));
+            model.addAttribute("pendingEvents", eventService.getPendingEventCount());
+            model.addAttribute("allEvents", eventService.getAllEvents());
+        } else if (currentUser.getRole() == Role.CLUB_HEAD) {
+            // Club Head dashboard data
+            model.addAttribute("myClubs", clubService.getClubsByHead(currentUser));
+            model.addAttribute("myClubEvents", eventService.getEventsByClubHead(currentUser));
+            model.addAttribute("myClubMembers", clubService.getTotalMembersByHead(currentUser));
+        } else if (currentUser.getRole() == Role.STUDENT) {
+            // Student dashboard data
+            model.addAttribute("myRegistrations", eventService.getRegistrationsByUser(currentUser));
+            model.addAttribute("myClubs", clubService.getClubsByMember(currentUser));
+            model.addAttribute("recommendedEvents", eventService.getRecommendedEvents(currentUser));
         }
 
         return "dashboard/index";

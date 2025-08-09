@@ -21,6 +21,8 @@ public interface ClubRepository extends JpaRepository<Club, Long> {
     
     List<Club> findByHead(User head);
     
+    List<Club> findByHeadAndIsActiveTrue(User head);
+    
     @Query("SELECT c FROM Club c WHERE c.head.userId = :headId AND c.isActive = true")
     List<Club> findByHeadIdAndIsActiveTrue(@Param("headId") Long headId);
     

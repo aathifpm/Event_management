@@ -94,6 +94,18 @@ public class ClubController {
         model.addAttribute("eventCount", recentEvents.size());
         model.addAttribute("title", club.getClubName());
         
+        // Get current user for role-based checks
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated() && !authentication.getName().equals("anonymousUser")) {
+            String userEmail = authentication.getName();
+            User currentUser = userService.getUserByEmail(userEmail).orElse(null);
+            
+            if (currentUser != null) {
+                model.addAttribute("currentUser", currentUser);
+                model.addAttribute("isClubHead", clubService.isUserClubHead(currentUser, club));
+            }
+        }
+        
         return "clubs/details";
     }
 
@@ -113,6 +125,18 @@ public class ClubController {
         model.addAttribute("members", members);
         model.addAttribute("title", club.getClubName() + " - Members");
         
+        // Get current user for role-based checks
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated() && !authentication.getName().equals("anonymousUser")) {
+            String userEmail = authentication.getName();
+            User currentUser = userService.getUserByEmail(userEmail).orElse(null);
+            
+            if (currentUser != null) {
+                model.addAttribute("currentUser", currentUser);
+                model.addAttribute("isClubHead", clubService.isUserClubHead(currentUser, club));
+            }
+        }
+        
         return "clubs/members";
     }
 
@@ -127,6 +151,18 @@ public class ClubController {
         
         Club club = clubOpt.get();
         List<Event> events = eventService.getEventsByClub(club.getClubId());
+        
+        // Get current user for role-based checks
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated() && !authentication.getName().equals("anonymousUser")) {
+            String userEmail = authentication.getName();
+            User currentUser = userService.getUserByEmail(userEmail).orElse(null);
+            
+            if (currentUser != null) {
+                model.addAttribute("currentUser", currentUser);
+                model.addAttribute("isClubHead", clubService.isUserClubHead(currentUser, club));
+            }
+        }
         
         model.addAttribute("club", club);
         model.addAttribute("events", events);
@@ -214,5 +250,198 @@ public class ClubController {
             redirectAttributes.addFlashAttribute("error", "Error joining club: " + e.getMessage());
             return "redirect:/clubs/" + id;
         }
+    }
+
+    // Edit club form (Admin and Club Head only)
+    @GetMapping("/{id}/edit")
+    public String showEditForm(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
+        Optional<Club> clubOpt = clubService.getClubById(id);
+        
+        if (clubOpt.isEmpty()) {
+            redirectAttributes.addFlashAttribute("error", "Club not found");
+            return "redirect:/clubs";
+        }
+        
+        Club club = clubOpt.get();
+        
+        // Check permissions
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.isAuthenticated()) {
+            Optional<User> userOpt = userService.getUserByEmail(auth.getName());
+            if (userOpt.isPresent()) {
+                User currentUser = userOpt.get();
+                boolean canEdit = currentUser.getRole().name().equals("ADMIN") || 
+                                 (club.getHead() != null && club.getHead().getUserId().equals(currentUser.getUserId()));
+                
+                if (!canEdit) {
+                    redirectAttributes.addFlashAttribute("error", "You don't have permission to edit this club");
+                    return "redirect:/clubs/" + id;
+                }
+            }
+        }
+        
+        model.addAttribute("club", club);
+        model.addAttribute("title", "Edit " + club.getClubName());
+        return "clubs/edit";
+    }
+
+    // Handle club edit form submission
+    @PostMapping("/{id}/edit")
+    public String updateClub(@PathVariable Long id, @Valid @ModelAttribute Club club, 
+                           BindingResult result, RedirectAttributes redirectAttributes) {
+        if (result.hasErrors()) {
+            return "clubs/edit";
+        }
+        
+        try {
+            Optional<Club> existingClubOpt = clubService.getClubById(id);
+            if (existingClubOpt.isEmpty()) {
+                redirectAttributes.addFlashAttribute("error", "Club not found");
+                return "redirect:/clubs";
+            }
+            
+            Club existingClub = existingClubOpt.get();
+            
+            // Check permissions
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            if (auth != null && auth.isAuthenticated()) {
+                Optional<User> userOpt = userService.getUserByEmail(auth.getName());
+                if (userOpt.isPresent()) {
+                    User currentUser = userOpt.get();
+                    boolean canEdit = currentUser.getRole().name().equals("ADMIN") || 
+                                     (existingClub.getHead() != null && existingClub.getHead().getUserId().equals(currentUser.getUserId()));
+                    
+                    if (!canEdit) {
+                        redirectAttributes.addFlashAttribute("error", "You don't have permission to edit this club");
+                        return "redirect:/clubs/" + id;
+                    }
+                }
+            }
+            
+            // Update club details
+            existingClub.setClubName(club.getClubName());
+            existingClub.setDescription(club.getDescription());
+            existingClub.setContactEmail(club.getContactEmail());
+            existingClub.setLogoUrl(club.getLogoUrl());
+            
+            clubService.saveClub(existingClub);
+            redirectAttributes.addFlashAttribute("success", "Club updated successfully!");
+            return "redirect:/clubs/" + id;
+            
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Error updating club: " + e.getMessage());
+            return "redirect:/clubs/" + id + "/edit";
+        }
+    }
+
+    // Club analytics page (Admin and Club Head only)
+    @GetMapping("/{id}/analytics")
+    public String clubAnalytics(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
+        Optional<Club> clubOpt = clubService.getClubById(id);
+        
+        if (clubOpt.isEmpty()) {
+            redirectAttributes.addFlashAttribute("error", "Club not found");
+            return "redirect:/clubs";
+        }
+        
+        Club club = clubOpt.get();
+        
+        // Check permissions
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.isAuthenticated()) {
+            Optional<User> userOpt = userService.getUserByEmail(auth.getName());
+            if (userOpt.isPresent()) {
+                User currentUser = userOpt.get();
+                boolean canView = currentUser.getRole().name().equals("ADMIN") || 
+                                 (club.getHead() != null && club.getHead().getUserId().equals(currentUser.getUserId()));
+                
+                if (!canView) {
+                    redirectAttributes.addFlashAttribute("error", "You don't have permission to view analytics for this club");
+                    return "redirect:/clubs/" + id;
+                }
+            }
+        }
+        
+        // Add analytics data
+        model.addAttribute("club", club);
+        model.addAttribute("totalMembers", clubMemberService.getActiveMemberCount(club));
+        model.addAttribute("totalEvents", eventService.getEventsByClub(club.getClubId()).size());
+        model.addAttribute("title", club.getClubName() + " - Analytics");
+        
+        return "clubs/analytics";
+    }
+
+    // Add members form (Club Head only)
+    @GetMapping("/{id}/members/add")
+    public String showAddMembersForm(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
+        Optional<Club> clubOpt = clubService.getClubById(id);
+        
+        if (clubOpt.isEmpty()) {
+            redirectAttributes.addFlashAttribute("error", "Club not found");
+            return "redirect:/clubs";
+        }
+        
+        Club club = clubOpt.get();
+        
+        // Check permissions - only club head can add members
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.isAuthenticated()) {
+            Optional<User> userOpt = userService.getUserByEmail(auth.getName());
+            if (userOpt.isPresent()) {
+                User currentUser = userOpt.get();
+                boolean canAdd = currentUser.getRole().name().equals("ADMIN") || 
+                                (club.getHead() != null && club.getHead().getUserId().equals(currentUser.getUserId()));
+                
+                if (!canAdd) {
+                    redirectAttributes.addFlashAttribute("error", "You don't have permission to add members to this club");
+                    return "redirect:/clubs/" + id;
+                }
+            }
+        }
+        
+        model.addAttribute("club", club);
+        model.addAttribute("title", "Add Members to " + club.getClubName());
+        return "clubs/add-members";
+    }
+
+    // Admin panel (Admin and Club Head only)
+    @GetMapping("/{id}/admin")
+    public String adminPanel(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
+        Optional<Club> clubOpt = clubService.getClubById(id);
+        
+        if (clubOpt.isEmpty()) {
+            redirectAttributes.addFlashAttribute("error", "Club not found");
+            return "redirect:/clubs";
+        }
+        
+        Club club = clubOpt.get();
+        
+        // Check permissions
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.isAuthenticated()) {
+            Optional<User> userOpt = userService.getUserByEmail(auth.getName());
+            if (userOpt.isPresent()) {
+                User currentUser = userOpt.get();
+                boolean canAccess = currentUser.getRole().name().equals("ADMIN") || 
+                                   (club.getHead() != null && club.getHead().getUserId().equals(currentUser.getUserId()));
+                
+                if (!canAccess) {
+                    redirectAttributes.addFlashAttribute("error", "You don't have permission to access admin panel for this club");
+                    return "redirect:/clubs/" + id;
+                }
+                
+                model.addAttribute("currentUser", currentUser);
+                model.addAttribute("isAdmin", currentUser.getRole().name().equals("ADMIN"));
+                model.addAttribute("isClubHead", club.getHead() != null && club.getHead().getUserId().equals(currentUser.getUserId()));
+            }
+        }
+        
+        // Add admin panel data
+        model.addAttribute("club", club);
+        model.addAttribute("members", clubMemberService.getActiveMembersByClubWithUser(club.getClubId()));
+        model.addAttribute("events", eventService.getEventsByClub(club.getClubId()));
+        model.addAttribute("title", club.getClubName() + " - Admin Panel");
+        
+        return "clubs/admin";
     }
 }
