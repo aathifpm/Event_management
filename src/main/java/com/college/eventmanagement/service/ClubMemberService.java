@@ -139,4 +139,10 @@ public class ClubMemberService {
                 .filter(member -> member.getUser() != null && member.getMemberRole() != null)
                 .collect(java.util.stream.Collectors.toList());
     }
+    
+    public long getTotalActiveMembers() {
+        return clubMemberRepository.findAll().stream()
+                .filter(member -> member.getIsActive() != null && member.getIsActive())
+                .count();
+    }
 }

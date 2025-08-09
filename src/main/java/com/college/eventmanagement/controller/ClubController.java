@@ -53,13 +53,41 @@ public class ClubController {
         
         if (search != null && !search.trim().isEmpty()) {
             clubs = clubService.searchClubs(search);
+            model.addAttribute("searchQuery", search);
         } else {
-            clubs = clubService.getAllClubs();
+            clubs = clubService.getActiveClubs(); // Only show active clubs by default
         }
         
+        // Add statistics
         model.addAttribute("clubs", clubs);
-        model.addAttribute("search", search);
+        model.addAttribute("totalClubs", clubService.getActiveClubCount());
+        model.addAttribute("totalMembers", clubMemberService.getTotalActiveMembers());
+        model.addAttribute("totalEvents", eventService.getTotalEventCount());
         model.addAttribute("title", "All Clubs");
+        
+        // Get current user for role-based functionality
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated() && !authentication.getName().equals("anonymousUser")) {
+            String userEmail = authentication.getName();
+            User currentUser = userService.getUserByEmail(userEmail).orElse(null);
+            
+            if (currentUser != null) {
+                model.addAttribute("currentUser", currentUser);
+                
+                // Role-specific data
+                switch (currentUser.getRole()) {
+                    case ADMIN:
+                        model.addAttribute("pendingClubs", clubService.getPendingClubsCount());
+                        break;
+                    case CLUB_HEAD:
+                        model.addAttribute("myClubs", clubService.getClubsByHead(currentUser));
+                        break;
+                    case STUDENT:
+                        model.addAttribute("myJoinedClubs", clubService.getClubsByMember(currentUser));
+                        break;
+                }
+            }
+        }
         
         return "clubs/list";
     }
@@ -88,8 +116,8 @@ public class ClubController {
         }
         
         model.addAttribute("club", club);
-        model.addAttribute("recentMembers", recentMembers);
-        model.addAttribute("recentEvents", recentEvents);
+        model.addAttribute("members", recentMembers);
+        model.addAttribute("events", recentEvents);
         model.addAttribute("memberCount", clubMemberService.getActiveMemberCount(club));
         model.addAttribute("eventCount", recentEvents.size());
         model.addAttribute("title", club.getClubName());
@@ -103,6 +131,10 @@ public class ClubController {
             if (currentUser != null) {
                 model.addAttribute("currentUser", currentUser);
                 model.addAttribute("isClubHead", clubService.isUserClubHead(currentUser, club));
+                
+                // Check if user is already a member of this club
+                boolean isMember = clubMemberService.isUserMemberOfClub(club, currentUser);
+                model.addAttribute("isMember", isMember);
             }
         }
         
@@ -219,7 +251,12 @@ public class ClubController {
     public String joinClub(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         try {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-            if (auth == null || !auth.isAuthenticated()) {
+            System.out.println("Join club - Authentication: " + auth);
+            System.out.println("Join club - Is authenticated: " + (auth != null && auth.isAuthenticated()));
+            System.out.println("Join club - Principal: " + (auth != null ? auth.getName() : "null"));
+            
+            if (auth == null || !auth.isAuthenticated() || "anonymousUser".equals(auth.getName())) {
+                System.out.println("User not authenticated, redirecting to login");
                 redirectAttributes.addFlashAttribute("error", "Please login to join a club");
                 return "redirect:/login";
             }
@@ -227,7 +264,11 @@ public class ClubController {
             Optional<User> userOpt = userService.getUserByEmail(auth.getName());
             Optional<Club> clubOpt = clubService.getClubById(id);
             
+            System.out.println("Join club - User found: " + userOpt.isPresent());
+            System.out.println("Join club - Club found: " + clubOpt.isPresent());
+            
             if (userOpt.isEmpty() || clubOpt.isEmpty()) {
+                System.out.println("User or club not found - redirecting to clubs");
                 redirectAttributes.addFlashAttribute("error", "User or club not found");
                 return "redirect:/clubs";
             }
@@ -235,14 +276,23 @@ public class ClubController {
             User user = userOpt.get();
             Club club = clubOpt.get();
             
+            System.out.println("Join club - User: " + user.getName() + " (" + user.getRole() + ")");
+            System.out.println("Join club - Club: " + club.getClubName());
+            
             // Check if user is already a member
-            if (clubMemberService.isUserMemberOfClub(club, user)) {
+            boolean isAlreadyMember = clubMemberService.isUserMemberOfClub(club, user);
+            System.out.println("Join club - Is already member: " + isAlreadyMember);
+            
+            if (isAlreadyMember) {
+                System.out.println("User already member - redirecting with message");
                 redirectAttributes.addFlashAttribute("error", "You are already a member of this club");
                 return "redirect:/clubs/" + id;
             }
             
             // Join the club
+            System.out.println("Attempting to join club...");
             clubMemberService.joinClub(club, user);
+            System.out.println("Successfully joined club");
             redirectAttributes.addFlashAttribute("success", "Successfully joined the club!");
             return "redirect:/clubs/" + id;
             

@@ -94,4 +94,10 @@ public class ClubService {
                         member.getUser().getUserId().equals(user.getUserId())))
             .toList();
     }
+    
+    public long getPendingClubsCount() {
+        // For now, return 0 as we don't have a pending status in the model
+        // This could be extended later with a status field
+        return 0;
+    }
 }
