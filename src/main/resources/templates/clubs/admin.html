@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title} ?: 'Club Admin Panel'">Club Admin Panel</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" th:href="@{/}">
+                <i class="fas fa-graduation-cap me-2"></i>
+                College Events
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/}">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/events}">Events</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" th:href="@{/clubs}">Clubs</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/dashboard}">Dashboard</a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-user me-1"></i>Account
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-user-edit me-2"></i>Edit Profile</a></li>
+                            <li>
+                                <form th:action="@{/logout}" method="post" class="d-inline">
+                                    <button type="submit" class="dropdown-item">
+                                        <i class="fas fa-sign-out-alt me-2"></i>Logout
+                                    </button>
+                                </form>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container mt-4">
+        <!-- Breadcrumb -->
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a th:href="@{/clubs}">Clubs</a></li>
+                <li class="breadcrumb-item"><a th:href="@{/clubs/{id}(id=${club.clubId})}" th:text="${club.clubName}">Club</a></li>
+                <li class="breadcrumb-item active">Admin Panel</li>
+            </ol>
+        </nav>
+
+        <!-- Header -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h1>
+                        <i class="fas fa-cog me-2"></i>
+                        <span th:text="${club.clubName}">Club Name</span> Admin Panel
+                    </h1>
+                    <span th:if="${isAdmin}" class="badge bg-danger fs-6">
+                        <i class="fas fa-shield-alt me-1"></i>Admin Access
+                    </span>
+                    <span th:if="${isClubHead and not isAdmin}" class="badge bg-warning text-dark fs-6">
+                        <i class="fas fa-crown me-1"></i>Club Head Access
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="card bg-primary text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h3 th:text="${#lists.size(members)}">0</h3>
+                                <p class="mb-0">Active Members</p>
+                            </div>
+                            <i class="fas fa-users fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card bg-success text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h3 th:text="${#lists.size(events)}">0</h3>
+                                <p class="mb-0">Total Events</p>
+                            </div>
+                            <i class="fas fa-calendar fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card bg-info text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h3 th:text="${#temporals.format(club.createdAt, 'MMM dd')}">Jan 01</h3>
+                                <p class="mb-0">Club Since</p>
+                            </div>
+                            <i class="fas fa-calendar-plus fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Management Actions -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-tools me-2"></i>Management Actions</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-2 mb-2">
+                                <a th:href="@{/clubs/{id}/edit(id=${club.clubId})}" class="btn btn-warning w-100">
+                                    <i class="fas fa-edit me-2"></i>Edit Club
+                                </a>
+                            </div>
+                            <div class="col-md-2 mb-2">
+                                <a th:href="@{/clubs/{id}/members/add(id=${club.clubId})}" class="btn btn-success w-100">
+                                    <i class="fas fa-user-plus me-2"></i>Add Members
+                                </a>
+                            </div>
+                            <div class="col-md-2 mb-2">
+                                <a th:href="@{/events/create?clubId={id}(id=${club.clubId})}" class="btn btn-primary w-100">
+                                    <i class="fas fa-plus me-2"></i>Create Event
+                                </a>
+                            </div>
+                            <div class="col-md-2 mb-2">
+                                <a th:href="@{/clubs/{id}/analytics(id=${club.clubId})}" class="btn btn-info w-100">
+                                    <i class="fas fa-chart-bar me-2"></i>Analytics
+                                </a>
+                            </div>
+                            <div class="col-md-2 mb-2" th:if="${isAdmin}">
+                                <button class="btn btn-danger w-100" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                                    <i class="fas fa-trash me-2"></i>Delete Club
+                                </button>
+                            </div>
+                            <div class="col-md-2 mb-2">
+                                <a th:href="@{/clubs/{id}(id=${club.clubId})}" class="btn btn-outline-secondary w-100">
+                                    <i class="fas fa-arrow-left me-2"></i>Back
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Members Management -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-users me-2"></i>Members Management</h5>
+                    </div>
+                    <div class="card-body">
+                        <div th:if="${#lists.isEmpty(members)}" class="text-center p-4">
+                            <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">No Members Yet</h5>
+                            <p class="text-muted">Start by adding members to your club.</p>
+                            <a th:href="@{/clubs/{id}/members/add(id=${club.clubId})}" class="btn btn-primary">
+                                <i class="fas fa-user-plus me-2"></i>Add Members
+                            </a>
+                        </div>
+                        
+                        <div th:unless="${#lists.isEmpty(members)}" class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Member</th>
+                                        <th>Role</th>
+                                        <th>Joined</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="member : ${members}">
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center me-2" 
+                                                     style="width: 32px; height: 32px;">
+                                                    <i class="fas fa-user text-white"></i>
+                                                </div>
+                                                <div>
+                                                    <strong th:text="${member.user.name}">User Name</strong>
+                                                    <br>
+                                                    <small class="text-muted" th:text="${member.user.email}">user@email.com</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-secondary" th:text="${member.role}">MEMBER</span>
+                                        </td>
+                                        <td th:text="${#temporals.format(member.joinedDate, 'MMM dd, yyyy')}">Jan 01, 2024</td>
+                                        <td>
+                                            <div class="btn-group" role="group">
+                                                <button class="btn btn-sm btn-outline-warning" title="Change Role">
+                                                    <i class="fas fa-user-cog"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-outline-danger" title="Remove Member" th:if="${isAdmin or (isClubHead and member.user.userId != currentUser.userId)}">
+                                                    <i class="fas fa-user-times"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Events Management -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-calendar me-2"></i>Events Management</h5>
+                    </div>
+                    <div class="card-body">
+                        <div th:if="${#lists.isEmpty(events)}" class="text-center p-4">
+                            <i class="fas fa-calendar fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">No Events Yet</h5>
+                            <p class="text-muted">Create your first event for the club.</p>
+                            <a th:href="@{/events/create?clubId={id}(id=${club.clubId})}" class="btn btn-primary">
+                                <i class="fas fa-plus me-2"></i>Create Event
+                            </a>
+                        </div>
+                        
+                        <div th:unless="${#lists.isEmpty(events)}" class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Event Name</th>
+                                        <th>Date</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="event : ${events}">
+                                        <td>
+                                            <strong th:text="${event.eventName}">Event Name</strong>
+                                            <br>
+                                            <small class="text-muted" th:text="${event.venue}">Venue</small>
+                                        </td>
+                                        <td th:text="${#temporals.format(event.eventDate, 'MMM dd, yyyy HH:mm')}">Jan 01, 2024 10:00</td>
+                                        <td>
+                                            <span class="badge bg-success" th:text="${event.eventStatus}">UPCOMING</span>
+                                        </td>
+                                        <td>
+                                            <div class="btn-group" role="group">
+                                                <a th:href="@{/events/{id}(id=${event.eventId})}" class="btn btn-sm btn-outline-primary" title="View Event">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                                <button class="btn btn-sm btn-outline-warning" title="Edit Event">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-outline-danger" title="Delete Event" th:if="${isAdmin}">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal (Admin Only) -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" th:if="${isAdmin}">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Delete Club</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete <strong th:text="${club.clubName}">this club</strong>?</p>
+                    <p class="text-danger"><i class="fas fa-exclamation-triangle me-2"></i>This action cannot be undone!</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <form th:action="@{/clubs/{id}/delete(id=${club.clubId})}" method="post" class="d-inline">
+                        <button type="submit" class="btn btn-danger">Delete Club</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

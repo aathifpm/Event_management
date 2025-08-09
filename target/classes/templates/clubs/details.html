@@ -33,21 +33,42 @@
                     <li class="nav-item">
                         <a class="nav-link" th:href="@{/dashboard}">Dashboard</a>
                     </li>
+                    <!-- Admin-only links -->
+                    <li class="nav-item dropdown" th:if="${isAdmin}">
+                        <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-cog me-1"></i>Admin
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-users me-2"></i>Manage Users</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-university me-2"></i>Manage Clubs</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-chart-bar me-2"></i>Reports</a></li>
+                        </ul>
+                    </li>
+                    <!-- Club Head-only links -->
+                    <li class="nav-item" th:if="${isClubHead}">
+                        <a class="nav-link" href="#"><i class="fas fa-users-cog me-1"></i>My Club</a>
+                    </li>
                 </ul>
                 <ul class="navbar-nav">
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-user me-1"></i>Account
+                            <i class="fas fa-user me-1"></i>
+                            <span th:text="${currentUser?.name ?: 'User'}">User</span>
+                            <span class="badge bg-light text-primary ms-1" th:text="${userRole}">ROLE</span>
                         </a>
                         <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" th:href="@{/login}"><i class="fas fa-sign-in-alt me-2"></i>Login</a></li>
-                            <li><a class="dropdown-item" th:href="@{/register}"><i class="fas fa-user-plus me-2"></i>Register</a></li>
-                            <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item" href="#"><i class="fas fa-user-edit me-2"></i>Edit Profile</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-bell me-2"></i>Notifications</a></li>
+                            <li><hr class="dropdown-divider"></li>
                             <li>
                                 <form th:action="@{/logout}" method="post" class="d-inline">
                                     <button type="submit" class="dropdown-item">
                                         <i class="fas fa-sign-out-alt me-2"></i>Logout
+                                    </button>
+                                </form>
+                            </li>
+                        </ul>
+                    </li>
                 </ul>
             </div>
         </div>
@@ -107,7 +128,7 @@
                                 <div class="row mt-2">
                                     <div class="col-sm-6">
                                         <strong>Founded:</strong>
-                                        <span th:text="${#temporals.format(club.createdAt, 'MMMM yyyy')}">January 2024</span>
+                                        <span th:text="${#temporals.format(club.createdAt, 'MMMM yyyy')}">January 2025</span>
                                     </div>
                                     <div class="col-sm-6">
                                         <strong>Status:</strong>
@@ -117,19 +138,76 @@
                                 </div>
                             </div>
                             <div class="col-md-3 text-end">
+                                <!-- Role-based view indicator -->
+                                <div class="mb-2">
+                                    <span th:if="${isAdmin}" class="badge bg-danger">
+                                        <i class="fas fa-shield-alt"></i> Admin View
+                                    </span>
+                                    <span th:if="${isClubHead and club.head != null and currentUser != null and club.head.userId == currentUser.userId}" class="badge bg-warning text-dark">
+                                        <i class="fas fa-crown"></i> Club Head
+                                    </span>
+                                    <span th:if="${isStudent}" class="badge bg-success">
+                                        <i class="fas fa-graduation-cap"></i> Student View
+                                    </span>
+                                    <span th:if="${currentUser == null}" class="badge bg-secondary">
+                                        <i class="fas fa-eye"></i> Guest View
+                                    </span>
+                                </div>
+                                
                                 <div class="d-grid gap-2">
-                                    <button type="button" 
+                                    <!-- Student: Join Club button (if not already a member) -->
+                                    <button th:if="${isStudent and currentUser != null and !isMember}" 
+                                            type="button" 
                                             class="btn btn-success btn-lg"
                                             data-bs-toggle="modal" 
                                             data-bs-target="#joinModal">
                                         <i class="fas fa-plus me-2"></i>Join Club
                                     </button>
-                                    <!-- Admin Panel Access (only for club heads/admins) -->
-                                    <a th:href="@{/clubs/{id}/admin(id=${club.clubId})}" 
-                                       class="btn btn-warning"
-                                       th:if="${club.head != null}">
-                                        <i class="fas fa-cog me-2"></i>Admin Panel
+                                    
+                                    <!-- Student: Already a member -->
+                                    <button th:if="${isStudent and currentUser != null and isMember}" 
+                                            type="button" 
+                                            class="btn btn-outline-success btn-lg"
+                                            disabled>
+                                        <i class="fas fa-check me-2"></i>Already a Member
+                                    </button>
+                                    
+                                    <!-- Guest: Login to join -->
+                                    <a th:if="${currentUser == null}" 
+                                       th:href="@{/login}" 
+                                       class="btn btn-outline-success btn-lg">
+                                        <i class="fas fa-sign-in-alt me-2"></i>Login to Join
                                     </a>
+                                    
+                                    <!-- Admin: Full management options -->
+                                    <div th:if="${isAdmin}" class="d-grid gap-1">
+                                        <a th:href="@{/clubs/{id}/admin(id=${club.clubId})}" 
+                                           class="btn btn-danger">
+                                            <i class="fas fa-cog me-2"></i>Admin Panel
+                                        </a>
+                                        <a th:href="@{/clubs/{id}/edit(id=${club.clubId})}" class="btn btn-outline-danger">
+                                            <i class="fas fa-edit me-2"></i>Edit Club
+                                        </a>
+                                        <a th:href="@{/clubs/{id}/analytics(id=${club.clubId})}" class="btn btn-outline-danger">
+                                            <i class="fas fa-chart-bar me-2"></i>Analytics
+                                        </a>
+                                    </div>
+                                    
+                                    <!-- Club Head: Management options for their club -->
+                                    <div th:if="${isClubHead and club.head != null and currentUser != null and club.head.userId == currentUser.userId}" class="d-grid gap-1">
+                                        <a th:href="@{/clubs/{id}/admin(id=${club.clubId})}" 
+                                           class="btn btn-warning">
+                                            <i class="fas fa-cog me-2"></i>Manage Club
+                                        </a>
+                                        <a th:href="@{/events/create?clubId={id}(id=${club.clubId})}" class="btn btn-outline-warning">
+                                            <i class="fas fa-plus me-2"></i>Create Event
+                                        </a>
+                                        <a th:href="@{/clubs/{id}/members/add(id=${club.clubId})}" class="btn btn-outline-warning">
+                                            <i class="fas fa-user-plus me-2"></i>Add Members
+                                        </a>
+                                    </div>
+                                    
+                                    <!-- Common buttons for all roles -->
                                     <a th:href="@{/clubs/{id}/members(id=${club.clubId})}" 
                                        class="btn btn-outline-primary">
                                         <i class="fas fa-users me-2"></i>View Members
@@ -260,8 +338,8 @@
         </div>
     </div>
 
-    <!-- Join Club Modal -->
-    <div class="modal fade" id="joinModal" tabindex="-1">
+    <!-- Join Club Modal (only for authenticated students who are not members) -->
+    <div th:if="${isStudent and currentUser != null and !isMember}" class="modal fade" id="joinModal" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
@@ -305,7 +383,7 @@
                     <p class="mb-0">Connecting students through events and clubs</p>
                 </div>
                 <div class="col-md-6 text-end">
-                    <p class="mb-0">&copy; 2024 College Event Management. All rights reserved.</p>
+                    <p class="mb-0">&copy; 2025 College Event Management. All rights reserved.</p>
                 </div>
             </div>
         </div>

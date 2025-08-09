@@ -93,6 +93,19 @@
                                 <p class="text-muted mb-0">Club Events</p>
                             </div>
                             <div class="col-md-4 text-end">
+                                <!-- Role indicator -->
+                                <div class="mb-2">
+                                    <span th:if="${isAdmin}" class="badge bg-danger">
+                                        <i class="fas fa-shield-alt"></i> Admin
+                                    </span>
+                                    <span th:if="${isClubHead and club.head != null and club.head.userId == currentUser.userId}" class="badge bg-warning text-dark">
+                                        <i class="fas fa-crown"></i> Club Head
+                                    </span>
+                                    <span th:if="${isStudent}" class="badge bg-success">
+                                        <i class="fas fa-graduation-cap"></i> Student
+                                    </span>
+                                </div>
+                                
                                 <div class="d-flex justify-content-end gap-2">
                                     <a th:href="@{/clubs/{id}(id=${club.clubId})}" 
                                        class="btn btn-outline-primary">
@@ -138,9 +151,25 @@
                                             <li><a class="dropdown-item" href="#">Cancelled</a></li>
                                         </ul>
                                     </div>
-                                    <button class="btn btn-light btn-sm">
+                                    <!-- Admin: Create Event button -->
+                                    <button th:if="${isAdmin}" class="btn btn-success btn-sm">
                                         <i class="fas fa-plus me-1"></i>Create Event
                                     </button>
+                                    <!-- Club Head: Create Event for their club -->
+                                    <button th:if="${isClubHead and club.head != null and club.head.userId == currentUser.userId}" class="btn btn-warning btn-sm">
+                                        <i class="fas fa-plus me-1"></i>Create Event
+                                    </button>
+                                    <!-- Admin: Manage All Events -->
+                                    <div th:if="${isAdmin}" class="dropdown">
+                                        <button class="btn btn-danger btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                            <i class="fas fa-cog me-1"></i>Manage
+                                        </button>
+                                        <ul class="dropdown-menu">
+                                            <li><a class="dropdown-item" href="#"><i class="fas fa-chart-bar me-2"></i>Analytics</a></li>
+                                            <li><a class="dropdown-item" href="#"><i class="fas fa-download me-2"></i>Export</a></li>
+                                            <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i>Settings</a></li>
+                                        </ul>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -190,17 +219,43 @@
                                         </div>
                                         <div class="col-md-2 text-end">
                                             <div class="btn-group-vertical" role="group">
+                                                <!-- Common View button for all users -->
                                                 <a th:href="@{/events/{id}(id=${event.eventId})}" 
                                                    class="btn btn-outline-primary btn-sm">
                                                     <i class="fas fa-eye"></i> View
                                                 </a>
-                                                <button type="button" 
+                                                
+                                                <!-- Student: Register button -->
+                                                <button th:if="${isStudent and event.eventStatus != null and event.eventStatus.name() == 'UPCOMING'}" 
+                                                        type="button" 
                                                         class="btn btn-success btn-sm"
-                                                        th:if="${event.eventStatus != null and event.eventStatus.name() == 'UPCOMING'}"
                                                         data-bs-toggle="modal" 
                                                         th:data-bs-target="'#registerModal' + ${event.eventId}">
                                                     <i class="fas fa-user-plus"></i> Register
                                                 </button>
+                                                
+                                                <!-- Admin: Full management -->
+                                                <div th:if="${isAdmin}" class="btn-group-vertical" role="group">
+                                                    <a href="#" class="btn btn-warning btn-sm">
+                                                        <i class="fas fa-edit"></i> Edit
+                                                    </a>
+                                                    <a href="#" class="btn btn-info btn-sm">
+                                                        <i class="fas fa-users"></i> Manage
+                                                    </a>
+                                                    <a href="#" class="btn btn-danger btn-sm">
+                                                        <i class="fas fa-trash"></i> Delete
+                                                    </a>
+                                                </div>
+                                                
+                                                <!-- Club Head: Manage their events -->
+                                                <div th:if="${isClubHead and club.head != null and club.head.userId == currentUser.userId}" class="btn-group-vertical" role="group">
+                                                    <a href="#" class="btn btn-warning btn-sm">
+                                                        <i class="fas fa-edit"></i> Edit
+                                                    </a>
+                                                    <a href="#" class="btn btn-info btn-sm">
+                                                        <i class="fas fa-users"></i> Attendees
+                                                    </a>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -213,9 +268,21 @@
                             <i class="fas fa-calendar-times text-muted fa-4x mb-3"></i>
                             <h4 class="text-muted">No Events Yet</h4>
                             <p class="text-muted mb-4">This club hasn't organized any events yet.</p>
-                            <button type="button" class="btn btn-primary">
+                            <!-- Admin: Create First Event -->
+                            <button th:if="${isAdmin}" type="button" class="btn btn-success">
                                 <i class="fas fa-plus me-2"></i>Create First Event
                             </button>
+                            <!-- Club Head: Create First Event for their club -->
+                            <button th:if="${isClubHead and club.head != null and club.head.userId == currentUser.userId}" type="button" class="btn btn-warning">
+                                <i class="fas fa-plus me-2"></i>Create First Event
+                            </button>
+                            <!-- Student: Encouraging message -->
+                            <div th:if="${isStudent}">
+                                <p class="text-muted">Check back later for upcoming events!</p>
+                                <a th:href="@{/events}" class="btn btn-outline-primary">
+                                    <i class="fas fa-calendar me-2"></i>Browse All Events
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -328,7 +395,7 @@
                     <p class="mb-0">Connecting students through events and clubs</p>
                 </div>
                 <div class="col-md-6 text-end">
-                    <p class="mb-0">&copy; 2024 College Event Management. All rights reserved.</p>
+                    <p class="mb-0">&copy; 2025 College Event Management. All rights reserved.</p>
                 </div>
             </div>
         </div>

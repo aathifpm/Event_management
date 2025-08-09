@@ -33,44 +33,98 @@
                     <li class="nav-item">
                         <a class="nav-link" th:href="@{/dashboard}">Dashboard</a>
                     </li>
+                    <!-- Admin-only links -->
+                    <li class="nav-item dropdown" th:if="${isAdmin}">
+                        <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-cog me-1"></i>Admin
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-users me-2"></i>Manage Users</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-university me-2"></i>Manage Clubs</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-chart-bar me-2"></i>Reports</a></li>
+                        </ul>
+                    </li>
+                    <!-- Club Head-only links -->
+                    <li class="nav-item" th:if="${isClubHead}">
+                        <a class="nav-link" href="#"><i class="fas fa-users-cog me-1"></i>My Club</a>
+                    </li>
                 </ul>
                 <ul class="navbar-nav">
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-user me-1"></i>Account
+                            <i class="fas fa-user me-1"></i>
+                            <span th:text="${currentUser?.name ?: 'User'}">User</span>
+                            <span class="badge bg-light text-primary ms-1" th:text="${userRole}">ROLE</span>
                         </a>
                         <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" th:href="@{/login}"><i class="fas fa-sign-in-alt me-2"></i>Login</a></li>
-                            <li><a class="dropdown-item" th:href="@{/register}"><i class="fas fa-user-plus me-2"></i>Register</a></li>
-                            <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item" href="#"><i class="fas fa-user-edit me-2"></i>Edit Profile</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-bell me-2"></i>Notifications</a></li>
+                            <li><hr class="dropdown-divider"></li>
                             <li>
                                 <form th:action="@{/logout}" method="post" class="d-inline">
                                     <button type="submit" class="dropdown-item">
                                         <i class="fas fa-sign-out-alt me-2"></i>Logout
+                                    </button>
+                                </form>
+                            </li>
+                        </ul>
+                    </li>
                 </ul>
             </div>
         </div>
     </nav>
 
     <!-- Header Section -->
-    <div class="bg-gradient text-white py-5">
+    <div class="bg-gradient text-white py-5" style="background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);">
         <div class="container">
             <div class="row align-items-center">
-                <div class="col-md-8">
+                <div class="col-md-6">
                     <h1 class="display-4 fw-bold mb-3">
                         <i class="fas fa-users me-3"></i>Student Clubs
                     </h1>
-                    <p class="lead mb-0">Discover and join student organizations that match your interests</p>
+                    <p class="lead mb-0">
+                        <span th:if="${isAdmin}">Manage and oversee all student organizations</span>
+                        <span th:if="${isClubHead}">Manage your clubs and discover others</span>
+                        <span th:if="${isStudent}">Discover and join student organizations that match your interests</span>
+                        <span th:if="${currentUser == null}">Discover amazing student organizations</span>
+                    </p>
                 </div>
-                <div class="col-md-4 text-end">
-                    <div class="d-flex justify-content-end align-items-center">
-                        <div class="text-center me-4">
-                            <h3 class="mb-0" th:text="${totalClubs}">0</h3>
-                            <small>Active Clubs</small>
+                <div class="col-md-6">
+                    <div class="row text-center">
+                        <div class="col-4">
+                            <div class="bg-white bg-opacity-20 rounded-3 p-3 mb-2">
+                                <h3 class="mb-0 fw-bold" th:text="${totalClubs ?: 0}">0</h3>
+                                <small class="opacity-75">Active Clubs</small>
+                            </div>
                         </div>
-                        <a th:href="@{/clubs/create}" class="btn btn-light btn-lg">
+                        <div class="col-4">
+                            <div class="bg-white bg-opacity-20 rounded-3 p-3 mb-2">
+                                <h3 class="mb-0 fw-bold" th:text="${totalMembers ?: 0}">0</h3>
+                                <small class="opacity-75">Total Members</small>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="bg-white bg-opacity-20 rounded-3 p-3 mb-2">
+                                <h3 class="mb-0 fw-bold" th:text="${totalEvents ?: 0}">0</h3>
+                                <small class="opacity-75">Events Hosted</small>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Role-based action buttons -->
+                    <div class="mt-3 d-flex justify-content-end gap-2">
+                        <a th:if="${isAdmin}" th:href="@{/clubs/create}" class="btn btn-light btn-lg">
                             <i class="fas fa-plus me-2"></i>Create Club
+                        </a>
+                        <a th:if="${isClubHead and myClubs != null and not #lists.isEmpty(myClubs)}" 
+                           th:href="@{/clubs/{id}(id=${myClubs[0].clubId})}" 
+                           class="btn btn-warning btn-lg">
+                            <i class="fas fa-crown me-2"></i>My Club
+                        </a>
+                        <a th:if="${isStudent}" href="#clubs-section" class="btn btn-success btn-lg">
+                            <i class="fas fa-search me-2"></i>Browse Clubs
+                        </a>
+                        <a th:if="${currentUser == null}" th:href="@{/login}" class="btn btn-light btn-lg">
+                            <i class="fas fa-sign-in-alt me-2"></i>Login to Join
                         </a>
                     </div>
                 </div>
@@ -128,27 +182,32 @@
     </div>
 
     <!-- Clubs Grid -->
-    <div class="container mt-4 mb-5">
+    <div id="clubs-section" class="container mt-4 mb-5">
         <div class="row" th:if="${not #lists.isEmpty(clubs)}">
             <div class="col-lg-4 col-md-6 mb-4" th:each="club : ${clubs}">
-                <div class="card club-card h-100 shadow-sm">
-                    <div class="card-body text-center">
+                <div class="card club-card h-100 shadow-sm border-0" 
+                     style="transition: transform 0.2s, box-shadow 0.2s;"
+                     onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 8px 25px rgba(0,0,0,0.15)'"
+                     onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 10px rgba(0,0,0,0.1)'">
+                    <div class="card-body text-center p-4">
                         <!-- Club Logo -->
                         <div class="mb-3">
                             <img th:if="${club.logoUrl}" 
                                  th:src="${club.logoUrl}" 
                                  th:alt="${club.clubName}" 
-                                 class="club-logo">
+                                 class="rounded-circle mx-auto d-block"
+                                 style="width: 80px; height: 80px; object-fit: cover;">
                             <div th:unless="${club.logoUrl}" 
-                                 class="club-logo bg-primary text-white d-flex align-items-center justify-content-center mx-auto">
+                                 class="bg-primary text-white d-flex align-items-center justify-content-center mx-auto rounded-circle"
+                                 style="width: 80px; height: 80px;">
                                 <i class="fas fa-users fa-2x"></i>
                             </div>
                         </div>
                         
                         <!-- Club Info -->
-                        <h5 class="card-title fw-bold" th:text="${club.clubName}">Club Name</h5>
-                        <p class="card-text text-muted" 
-                           th:text="${#strings.abbreviate(club.description, 100)}"
+                        <h5 class="card-title fw-bold mb-2" th:text="${club.clubName}">Club Name</h5>
+                        <p class="card-text text-muted small mb-3" 
+                           th:text="${#strings.abbreviate(club.description, 80)}"
                            th:title="${club.description}">
                             Club description...
                         </p>
@@ -156,53 +215,100 @@
                         <!-- Club Stats -->
                         <div class="row text-center mb-3">
                             <div class="col-6">
-                                <small class="text-muted">Members</small>
-                                <div class="fw-bold">0</div>
+                                <div class="border-end">
+                                    <small class="text-muted d-block">Members</small>
+                                    <div class="fw-bold text-primary" th:text="${club.members != null ? #lists.size(club.members) : 0}">0</div>
+                                </div>
                             </div>
                             <div class="col-6">
-                                <small class="text-muted">Events</small>
-                                <div class="fw-bold">0</div>
+                                <small class="text-muted d-block">Events</small>
+                                <div class="fw-bold text-success" th:text="${club.events != null ? #lists.size(club.events) : 0}">0</div>
                             </div>
                         </div>
                         
                         <!-- Club Head -->
                         <div class="mb-3" th:if="${club.head}">
-                            <small class="text-muted">Head:</small>
-                            <div class="fw-bold" th:text="${club.head.name}">Club Head</div>
+                            <div class="d-flex align-items-center justify-content-center">
+                                <div class="bg-warning text-dark rounded-circle me-2 d-flex align-items-center justify-content-center" style="width: 24px; height: 24px;">
+                                    <i class="fas fa-crown fa-xs"></i>
+                                </div>
+                                <small class="text-muted">Head: </small>
+                                <small class="fw-bold ms-1" th:text="${club.head.name}">Club Head</small>
+                            </div>
+                        </div>
+                        
+                        <!-- Status Badge -->
+                        <div class="mb-3">
+                            <span class="badge bg-success" th:if="${club.isActive}">
+                                <i class="fas fa-check-circle me-1"></i>Active
+                            </span>
+                            <span class="badge bg-secondary" th:unless="${club.isActive}">
+                                <i class="fas fa-pause-circle me-1"></i>Inactive
+                            </span>
                         </div>
                         
                         <!-- Action Buttons -->
                         <div class="d-grid gap-2">
                             <a th:href="@{/clubs/{id}(id=${club.clubId})}" 
-                               class="btn btn-primary">
+                               class="btn btn-outline-primary">
                                 <i class="fas fa-eye me-1"></i>View Details
                             </a>
-                            <div class="btn-group" role="group">
-                                <a th:href="@{/clubs/{id}/events(id=${club.clubId})}" 
-                                   class="btn btn-outline-secondary btn-sm">
-                                    <i class="fas fa-calendar me-1"></i>Events
+                            
+                            <!-- Student: Quick Join Button -->
+                            <button th:if="${isStudent}" 
+                                    type="button" 
+                                    class="btn btn-success btn-sm"
+                                    data-bs-toggle="modal" 
+                                    th:data-bs-target="'#joinModal' + ${club.clubId}">
+                                <i class="fas fa-plus me-1"></i>Join Club
+                            </button>
+                            
+                            <!-- Admin: Management buttons -->
+                            <div th:if="${isAdmin}" class="btn-group" role="group">
+                                <a th:href="@{/clubs/{id}/edit(id=${club.clubId})}" 
+                                   class="btn btn-warning btn-sm">
+                                    <i class="fas fa-edit me-1"></i>Edit
                                 </a>
-                                <a th:href="@{/clubs/{id}/members(id=${club.clubId})}" 
-                                   class="btn btn-outline-secondary btn-sm">
-                                    <i class="fas fa-users me-1"></i>Members
+                                <a th:href="@{/clubs/{id}/admin(id=${club.clubId})}" 
+                                   class="btn btn-danger btn-sm">
+                                    <i class="fas fa-cog me-1"></i>Manage
+                                </a>
+                            </div>
+                            
+                            <!-- Club Head: Quick actions for their club -->
+                            <div th:if="${isClubHead and myClubs != null and #lists.contains(myClubs, club)}" class="btn-group" role="group">
+                                <a th:href="@{/events/create?clubId={id}(id=${club.clubId})}" 
+                                   class="btn btn-warning btn-sm">
+                                    <i class="fas fa-plus me-1"></i>Create Event
+                                </a>
+                                <a th:href="@{/clubs/{id}/admin(id=${club.clubId})}" 
+                                   class="btn btn-outline-warning btn-sm">
+                                    <i class="fas fa-cog me-1"></i>Manage
                                 </a>
                             </div>
                         </div>
                     </div>
                     
                     <!-- Card Footer -->
-                    <div class="card-footer bg-transparent">
+                    <div class="card-footer bg-light border-0">
                         <div class="d-flex justify-content-between align-items-center">
                             <small class="text-muted">
                                 <i class="fas fa-calendar-alt me-1"></i>
-                                Created <span th:text="${#temporals.format(club.createdAt, 'MMM yyyy')}">Jan 2024</span>
+                                Est. <span th:text="${#temporals.format(club.createdAt, 'MMM yyyy')}">Jan 2025</span>
                             </small>
-                            <button type="button" 
-                                    class="btn btn-success btn-sm"
-                                    data-bs-toggle="modal" 
-                                    th:data-bs-target="'#joinModal' + ${club.clubId}">
-                                <i class="fas fa-plus me-1"></i>Join
-                            </button>
+                            
+                            <!-- Role indicator -->
+                            <div>
+                                <span th:if="${isClubHead and myClubs != null and #lists.contains(myClubs, club)}" 
+                                      class="badge bg-warning text-dark">
+                                    <i class="fas fa-crown me-1"></i>Your Club
+                                </span>
+                                
+                                <span th:if="${isStudent and myJoinedClubs != null and #lists.contains(myJoinedClubs, club)}" 
+                                      class="badge bg-success">
+                                    <i class="fas fa-check me-1"></i>Member
+                                </span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -266,7 +372,7 @@
                     <p class="mb-0">Connecting students through events and clubs</p>
                 </div>
                 <div class="col-md-6 text-end">
-                    <p class="mb-0">&copy; 2024 College Event Management. All rights reserved.</p>
+                    <p class="mb-0">&copy; 2025 College Event Management. All rights reserved.</p>
                 </div>
             </div>
         </div>

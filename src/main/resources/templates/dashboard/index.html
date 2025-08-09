@@ -21,6 +21,7 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
+                <ul class="navbar-nav me-auto">
                     <li class="nav-item">
                         <a class="nav-link" th:href="@{/}">Home</a>
                     </li>
@@ -30,17 +31,36 @@
                     <li class="nav-item">
                         <a class="nav-link" th:href="@{/clubs}">Clubs</a>
                     </li>
+                    <!-- Show Dashboard only for authenticated users -->
                     <li class="nav-item">
                         <a class="nav-link active" th:href="@{/dashboard}">Dashboard</a>
+                    </li>
+                    <!-- Admin-only links -->
+                    <li class="nav-item dropdown" th:if="${isAdmin}">
+                        <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-cog me-1"></i>Admin
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-users me-2"></i>Manage Users</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-university me-2"></i>Manage Clubs</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-chart-bar me-2"></i>Reports</a></li>
+                        </ul>
+                    </li>
+                    <!-- Club Head-only links -->
+                    <li class="nav-item" th:if="${isClubHead}">
+                        <a class="nav-link" href="#"><i class="fas fa-users-cog me-1"></i>My Club</a>
                     </li>
                 </ul>
                 <ul class="navbar-nav">
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-user me-1"></i><span th:text="${currentUser?.name ?: 'User'}">User</span>
+                            <i class="fas fa-user me-1"></i>
+                            <span th:text="${currentUser?.name ?: 'User'}">User</span>
+                            <span class="badge bg-light text-primary ms-1" th:text="${userRole}">ROLE</span>
                         </a>
                         <ul class="dropdown-menu">
                             <li><a class="dropdown-item" href="#"><i class="fas fa-user-edit me-2"></i>Edit Profile</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-bell me-2"></i>Notifications</a></li>
                             <li><hr class="dropdown-divider"></li>
                             <li>
                                 <form th:action="@{/logout}" method="post" class="d-inline">
@@ -60,14 +80,26 @@
     <div class="container mt-4">
         <div class="row">
             <div class="col-12">
-                <h1 class="mb-4">
-                    <i class="fas fa-tachometer-alt"></i> Dashboard
-                </h1>
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h1><i class="fas fa-tachometer-alt"></i> Dashboard</h1>
+                    <!-- Role-based message -->
+                    <div class="text-end">
+                        <span th:if="${isAdmin}" class="badge bg-danger fs-6">
+                            <i class="fas fa-shield-alt"></i> Admin Dashboard
+                        </span>
+                        <span th:if="${isClubHead}" class="badge bg-warning text-dark fs-6">
+                            <i class="fas fa-crown"></i> Club Head Dashboard
+                        </span>
+                        <span th:if="${isStudent}" class="badge bg-success fs-6">
+                            <i class="fas fa-graduation-cap"></i> Student Dashboard
+                        </span>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <!-- Stats Cards -->
-        <div class="row mb-4">
+        <!-- Admin Stats Cards -->
+        <div th:if="${isAdmin}" class="row mb-4">
             <div class="col-md-3">
                 <div class="card text-white bg-primary">
                     <div class="card-body">
@@ -122,7 +154,7 @@
                                 <h3 th:text="${upcomingEvents}">0</h3>
                             </div>
                             <div class="align-self-center">
-                                <i class="fas fa-bell fa-2x"></i>
+                                <i class="fas fa-clock fa-2x"></i>
                             </div>
                         </div>
                     </div>
@@ -130,51 +162,241 @@
             </div>
         </div>
 
-        <!-- Recent Events -->
-        <div class="row">
-            <div class="col-md-8">
-                <div class="card">
-                    <div class="card-header">
-                        <h5 class="mb-0"><i class="fas fa-calendar-alt"></i> Upcoming Events</h5>
-                    </div>
+        <!-- Club Head Stats Cards -->
+        <div th:if="${isClubHead}" class="row mb-4">
+            <div class="col-md-4">
+                <div class="card text-white bg-warning">
                     <div class="card-body">
-                        <div class="list-group list-group-flush">
-                            <div th:if="${#lists.isEmpty(upcomingEventsList)}" class="list-group-item">
-                                <p class="text-muted">No upcoming events</p>
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h5 class="card-title">My Clubs</h5>
+                                <h3 th:text="${myClubs != null ? #lists.size(myClubs) : 0}">0</h3>
                             </div>
-                            <div th:each="event : ${upcomingEventsList}" class="list-group-item d-flex justify-content-between align-items-center">
-                                <div>
-                                    <h6 class="mb-1" th:text="${event.eventName}">Event Name</h6>
-                                    <p class="mb-1" th:text="${event.description}">Event Description</p>
-                                    <small class="text-muted" th:text="${event.club.clubName}">Club Name</small>
-                                </div>
-                                <span class="badge bg-primary rounded-pill" 
-                                      th:text="${#temporals.format(event.eventDate, 'MMM dd')}">Date</span>
+                            <div class="align-self-center">
+                                <i class="fas fa-crown fa-2x"></i>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            
             <div class="col-md-4">
+                <div class="card text-white bg-primary">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h5 class="card-title">My Events</h5>
+                                <h3 th:text="${myClubEvents != null ? #lists.size(myClubEvents) : 0}">0</h3>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="fas fa-calendar-alt fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card text-white bg-success">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h5 class="card-title">Total Members</h5>
+                                <h3 th:text="${myClubMembers ?: 0}">0</h3>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="fas fa-users fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Student Stats Cards -->
+        <div th:if="${isStudent}" class="row mb-4">
+            <div class="col-md-4">
+                <div class="card text-white bg-success">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h5 class="card-title">My Registrations</h5>
+                                <h3 th:text="${myRegistrations != null ? #lists.size(myRegistrations) : 0}">0</h3>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="fas fa-ticket-alt fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card text-white bg-info">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h5 class="card-title">My Clubs</h5>
+                                <h3 th:text="${myClubs != null ? #lists.size(myClubs) : 0}">0</h3>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="fas fa-users fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card text-white bg-primary">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h5 class="card-title">Available Events</h5>
+                                <h3 th:text="${recommendedEvents != null ? #lists.size(recommendedEvents) : 0}">0</h3>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="fas fa-calendar fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Admin Content Section -->
+        <div th:if="${isAdmin}" class="row">
+            <div class="col-md-8">
                 <div class="card">
-                    <div class="card-header">
-                        <h5 class="mb-0"><i class="fas fa-bell"></i> Recent Notifications</h5>
+                    <div class="card-header bg-danger text-white">
+                        <h5 class="mb-0"><i class="fas fa-shield-alt me-2"></i>System Overview</h5>
                     </div>
                     <div class="card-body">
-                        <div class="list-group list-group-flush">
-                            <div class="list-group-item">
-                                <small class="text-muted">2 hours ago</small>
-                                <p class="mb-1">New event registration opened</p>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6>User Statistics</h6>
+                                <p>Students: <span class="badge bg-primary" th:text="${totalStudents ?: 0}">0</span></p>
+                                <p>Club Heads: <span class="badge bg-warning text-dark" th:text="${totalClubHeads ?: 0}">0</span></p>
                             </div>
-                            <div class="list-group-item">
-                                <small class="text-muted">1 day ago</small>
-                                <p class="mb-1">Club meeting scheduled</p>
+                            <div class="col-md-6">
+                                <h6>Quick Actions</h6>
+                                <div class="d-grid gap-2">
+                                    <a href="/events/create" class="btn btn-outline-danger btn-sm">
+                                        <i class="fas fa-plus me-1"></i>Create Event
+                                    </a>
+                                    <a href="/clubs/admin" class="btn btn-outline-danger btn-sm">
+                                        <i class="fas fa-users me-1"></i>Manage Clubs
+                                    </a>
+                                    <a href="/admin/users" class="btn btn-outline-danger btn-sm">
+                                        <i class="fas fa-user-cog me-1"></i>User Management
+                                    </a>
+                                </div>
                             </div>
-                            <div class="list-group-item">
-                                <small class="text-muted">2 days ago</small>
-                                <p class="mb-1">Event reminder sent</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Recent Activity</h5>
+                    </div>
+                    <div class="card-body">
+                        <p><i class="fas fa-calendar-plus text-success me-2"></i>3 new events created</p>
+                        <p><i class="fas fa-user-plus text-primary me-2"></i>12 new registrations</p>
+                        <p><i class="fas fa-users text-warning me-2"></i>2 new club requests</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Club Head Content Section -->
+        <div th:if="${isClubHead}" class="row">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header bg-warning text-dark">
+                        <h5 class="mb-0"><i class="fas fa-crown me-2"></i>My Clubs & Events</h5>
+                    </div>
+                    <div class="card-body">
+                        <div th:if="${myClubs != null and not #lists.isEmpty(myClubs)}">
+                            <h6>Your Clubs:</h6>
+                            <div class="row" th:each="club : ${myClubs}">
+                                <div class="col-12 mb-2">
+                                    <div class="border rounded p-2">
+                                        <h6 th:text="${club.clubName}">Club Name</h6>
+                                        <p class="text-muted mb-1" th:text="${club.description}">Club Description</p>
+                                        <small>Members: <span th:text="${club.members != null ? #lists.size(club.members) : 0}">0</span></small>
+                                    </div>
+                                </div>
                             </div>
+                        </div>
+                        <div th:if="${myClubs == null or #lists.isEmpty(myClubs)}">
+                            <p class="text-muted">You are not heading any clubs currently.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="fas fa-tasks me-2"></i>Quick Actions</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-grid gap-2">
+                            <a href="/events/create" class="btn btn-primary btn-sm">
+                                <i class="fas fa-plus me-1"></i>Create Event
+                            </a>
+                            <a href="/clubs" class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-users me-1"></i>Manage Clubs
+                            </a>
+                            <a href="/events?clubHead=true" class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-calendar me-1"></i>My Events
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Student Content Section -->
+        <div th:if="${isStudent}" class="row">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0"><i class="fas fa-ticket-alt me-2"></i>My Registrations</h5>
+                    </div>
+                    <div class="card-body">
+                        <div th:if="${myRegistrations != null and not #lists.isEmpty(myRegistrations)}" class="list-group list-group-flush">
+                            <div th:each="registration : ${myRegistrations}" class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-1" th:text="${registration.event.eventName}">Event Name</h6>
+                                    <p class="mb-1 text-muted" th:text="${registration.event.club.clubName}">Club Name</p>
+                                    <small th:text="${#temporals.format(registration.event.eventDate, 'MMM dd, yyyy HH:mm')}">Date</small>
+                                </div>
+                                <span class="badge bg-success" th:text="${registration.status}">Status</span>
+                            </div>
+                        </div>
+                        <div th:if="${myRegistrations == null or #lists.isEmpty(myRegistrations)}">
+                            <p class="text-muted">You haven't registered for any events yet.</p>
+                            <a href="/events" class="btn btn-success">Browse Events</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0"><i class="fas fa-star me-2"></i>Recommended Events</h5>
+                    </div>
+                    <div class="card-body">
+                        <div th:if="${recommendedEvents != null and not #lists.isEmpty(recommendedEvents)}">
+                            <div th:each="event : ${#lists.size(recommendedEvents) > 3 ? recommendedEvents.subList(0, 3) : recommendedEvents}" class="mb-3">
+                                <h6 class="mb-1" th:text="${event.eventName}">Event Name</h6>
+                                <small class="text-muted" th:text="${event.club.clubName}">Club</small><br>
+                                <small th:text="${#temporals.format(event.eventDate, 'MMM dd')}">Date</small>
+                                <div class="mt-1">
+                                    <a th:href="@{'/events/' + ${event.eventId}}" class="btn btn-sm btn-outline-info">View Details</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div th:if="${recommendedEvents == null or #lists.isEmpty(recommendedEvents)}">
+                            <p class="text-muted">No events available at the moment.</p>
                         </div>
                     </div>
                 </div>
