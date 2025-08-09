@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title} ?: 'Club Analytics'">Club Analytics</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" th:href="@{/}">
+                <i class="fas fa-graduation-cap me-2"></i>
+                College Events
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/}">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/events}">Events</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" th:href="@{/clubs}">Clubs</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/dashboard}">Dashboard</a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-user me-1"></i>Account
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-user-edit me-2"></i>Edit Profile</a></li>
+                            <li>
+                                <form th:action="@{/logout}" method="post" class="d-inline">
+                                    <button type="submit" class="dropdown-item">
+                                        <i class="fas fa-sign-out-alt me-2"></i>Logout
+                                    </button>
+                                </form>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container mt-4">
+        <!-- Breadcrumb -->
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a th:href="@{/clubs}">Clubs</a></li>
+                <li class="breadcrumb-item"><a th:href="@{/clubs/{id}(id=${club.clubId})}" th:text="${club.clubName}">Club</a></li>
+                <li class="breadcrumb-item active">Analytics</li>
+            </ol>
+        </nav>
+
+        <!-- Header -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <h1><i class="fas fa-chart-bar me-2"></i><span th:text="${club.clubName}">Club Name</span> Analytics</h1>
+            </div>
+        </div>
+
+        <!-- Statistics Cards -->
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="card bg-primary text-white">
+                    <div class="card-body text-center">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h3 th:text="${totalMembers}">0</h3>
+                                <p class="mb-0">Total Members</p>
+                            </div>
+                            <i class="fas fa-users fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card bg-success text-white">
+                    <div class="card-body text-center">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h3 th:text="${totalEvents}">0</h3>
+                                <p class="mb-0">Total Events</p>
+                            </div>
+                            <i class="fas fa-calendar fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card bg-info text-white">
+                    <div class="card-body text-center">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h3 th:text="${#temporals.format(club.createdAt, 'MMM yyyy')}">Jan 2024</h3>
+                                <p class="mb-0">Club Since</p>
+                            </div>
+                            <i class="fas fa-birthday-cake fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-chart-line me-2"></i>Growth Overview</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="text-center p-5">
+                            <i class="fas fa-chart-line fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">Analytics Dashboard</h5>
+                            <p class="text-muted">Detailed analytics charts will be displayed here in the future.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-cogs me-2"></i>Quick Actions</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-3 mb-2">
+                                <a th:href="@{/clubs/{id}/members(id=${club.clubId})}" class="btn btn-outline-primary w-100">
+                                    <i class="fas fa-users me-2"></i>View Members
+                                </a>
+                            </div>
+                            <div class="col-md-3 mb-2">
+                                <a th:href="@{/clubs/{id}/events(id=${club.clubId})}" class="btn btn-outline-success w-100">
+                                    <i class="fas fa-calendar me-2"></i>View Events
+                                </a>
+                            </div>
+                            <div class="col-md-3 mb-2">
+                                <a th:href="@{/events/create?clubId={id}(id=${club.clubId})}" class="btn btn-outline-warning w-100">
+                                    <i class="fas fa-plus me-2"></i>Create Event
+                                </a>
+                            </div>
+                            <div class="col-md-3 mb-2">
+                                <a th:href="@{/clubs/{id}(id=${club.clubId})}" class="btn btn-outline-secondary w-100">
+                                    <i class="fas fa-arrow-left me-2"></i>Back to Club
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
