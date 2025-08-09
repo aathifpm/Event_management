@@ -133,6 +133,10 @@ public class ClubMemberService {
     }
 
     public List<ClubMember> getActiveMembersByClubWithUser(Long clubId) {
-        return clubMemberRepository.findActiveByClubIdWithUser(clubId);
+        List<ClubMember> members = clubMemberRepository.findActiveByClubIdWithUser(clubId);
+        // Filter out members with null user or memberRole
+        return members.stream()
+                .filter(member -> member.getUser() != null && member.getMemberRole() != null)
+                .collect(java.util.stream.Collectors.toList());
     }
 }

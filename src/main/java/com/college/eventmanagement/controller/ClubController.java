@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.college.eventmanagement.model.Club;
+import com.college.eventmanagement.model.ClubMember;
 import com.college.eventmanagement.model.Event;
 import com.college.eventmanagement.model.User;
 import com.college.eventmanagement.service.ClubService;
@@ -35,29 +36,31 @@ public class ClubController {
     private ClubService clubService;
 
     @Autowired
+    private ClubMemberService clubMemberService;
+
+    @Autowired
     private UserService userService;
 
     @Autowired
     private EventService eventService;
 
-    @Autowired
-    private ClubMemberService clubMemberService;
-
-    // Display all clubs
+    // List all clubs
     @GetMapping
-    public String listClubs(@RequestParam(value = "search", required = false) String search, Model model) {
+    public String listClubs(Model model, 
+                          @RequestParam(value = "search", required = false) String search) {
+        
         List<Club> clubs;
         
         if (search != null && !search.trim().isEmpty()) {
             clubs = clubService.searchClubs(search);
-            model.addAttribute("searchQuery", search);
         } else {
-            clubs = clubService.getActiveClubs();
+            clubs = clubService.getAllClubs();
         }
         
         model.addAttribute("clubs", clubs);
-        model.addAttribute("totalClubs", clubService.getActiveClubCount());
-        model.addAttribute("title", "Clubs");
+        model.addAttribute("search", search);
+        model.addAttribute("title", "All Clubs");
+        
         return "clubs/list";
     }
 
@@ -71,12 +74,24 @@ public class ClubController {
         }
         
         Club club = clubOpt.get();
-        List<Event> clubEvents = eventService.getEventsByClub(club.getClubId());
+        
+        // Get recent members and events using service methods to avoid lazy loading
+        List<ClubMember> recentMembers = clubMemberService.getActiveMembersByClubWithUser(club.getClubId());
+        List<Event> recentEvents = eventService.getEventsByClub(club.getClubId());
+        
+        // Limit to first 6 items for preview
+        if (recentMembers.size() > 6) {
+            recentMembers = recentMembers.subList(0, 6);
+        }
+        if (recentEvents.size() > 6) {
+            recentEvents = recentEvents.subList(0, 6);
+        }
         
         model.addAttribute("club", club);
-        model.addAttribute("events", clubEvents);
-        model.addAttribute("memberCount", club.getMembers() != null ? club.getMembers().size() : 0);
-        model.addAttribute("eventCount", clubEvents.size());
+        model.addAttribute("recentMembers", recentMembers);
+        model.addAttribute("recentEvents", recentEvents);
+        model.addAttribute("memberCount", clubMemberService.getActiveMemberCount(club));
+        model.addAttribute("eventCount", recentEvents.size());
         model.addAttribute("title", club.getClubName());
         
         return "clubs/details";
@@ -92,8 +107,10 @@ public class ClubController {
         }
         
         Club club = clubOpt.get();
+        List<ClubMember> members = clubMemberService.getActiveMembersByClubWithUser(club.getClubId());
+        
         model.addAttribute("club", club);
-        model.addAttribute("members", club.getMembers());
+        model.addAttribute("members", members);
         model.addAttribute("title", club.getClubName() + " - Members");
         
         return "clubs/members";
