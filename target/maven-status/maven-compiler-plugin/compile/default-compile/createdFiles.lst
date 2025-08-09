@@ -22,6 +22,8 @@ com\college\eventmanagement\controller\ClubController.class
 com\college\eventmanagement\model\Notification.class
 com\college\eventmanagement\model\NotificationType.class
 com\college\eventmanagement\model\User.class
+com\college\eventmanagement\controller\ClubAdminController.class
+com\college\eventmanagement\service\ClubMemberService.class
 com\college\eventmanagement\EventManagementApplication.class
 com\college\eventmanagement\service\ClubService.class
 com\college\eventmanagement\model\ClubMember.class

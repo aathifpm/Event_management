@@ -23,6 +23,8 @@ C:\Users\Aathif\Documents\GitHub\Event_management\src\main\java\com\college\even
 C:\Users\Aathif\Documents\GitHub\Event_management\src\main\java\com\college\eventmanagement\controller\EventController.java
 C:\Users\Aathif\Documents\GitHub\Event_management\src\main\java\com\college\eventmanagement\controller\DashboardController.java
 C:\Users\Aathif\Documents\GitHub\Event_management\src\main\java\com\college\eventmanagement\repository\EventRegistrationRepository.java
+C:\Users\Aathif\Documents\GitHub\Event_management\src\main\java\com\college\eventmanagement\service\ClubMemberService.java
+C:\Users\Aathif\Documents\GitHub\Event_management\src\main\java\com\college\eventmanagement\controller\ClubAdminController.java
 C:\Users\Aathif\Documents\GitHub\Event_management\src\main\java\com\college\eventmanagement\controller\PasswordResetController.java
 C:\Users\Aathif\Documents\GitHub\Event_management\src\main\java\com\college\eventmanagement\model\Role.java
 C:\Users\Aathif\Documents\GitHub\Event_management\src\main\java\com\college\eventmanagement\service\CustomUserDetailsService.java

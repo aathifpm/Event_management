@@ -20,7 +20,7 @@ public class PasswordResetController {
     private PasswordEncoder passwordEncoder;
 
     @GetMapping("/reset-password")
-    public String resetPassword(@RequestParam(defaultValue = "aathifpm123@gmail.com") String email, 
+    public String resetPassword(@RequestParam(defaultValue = "robotics@college.edu") String email, 
                                @RequestParam(defaultValue = "Admin123") String newPassword) {
         try {
             Optional<User> userOpt = userRepository.findByEmail(email);
