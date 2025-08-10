@@ -13,7 +13,7 @@ services:
       - key: SPRING_DATASOURCE_URL
         value: jdbc:mysql://srv1880.hstgr.io:3306/u518745130_CEM
       - key: SPRING_DATASOURCE_USERNAME
-        value: u518745130_CEM
+        value: u518745130_aathif
       - key: SPRING_DATASOURCE_PASSWORD
         sync: false # Set this manually in Render dashboard
       - key: SPRING_JPA_HIBERNATE_DDL_AUTO
