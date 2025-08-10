@@ -1,14 +1,15 @@
 package com.college.eventmanagement.service;
 
-import com.college.eventmanagement.model.Club;
-import com.college.eventmanagement.model.User;
-import com.college.eventmanagement.repository.ClubRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.college.eventmanagement.model.Club;
+import com.college.eventmanagement.model.User;
+import com.college.eventmanagement.repository.ClubRepository;
 
 @Service
 public class ClubService {
@@ -67,8 +68,8 @@ public class ClubService {
         return clubRepository.countByIsActiveTrue();
     }
 
-    public List<Club> searchClubs(String keyword) {
-        return clubRepository.findByClubNameContainingIgnoreCaseAndIsActiveTrue(keyword);
+    public List<Club> searchClubs(String searchTerm) {
+        return clubRepository.findByClubNameContainingIgnoreCaseOrDescriptionContainingIgnoreCase(searchTerm, searchTerm);
     }
     
     public List<Club> getClubsByHead(User user) {
@@ -99,5 +100,19 @@ public class ClubService {
         // For now, return 0 as we don't have a pending status in the model
         // This could be extended later with a status field
         return 0;
+    }
+    
+    public List<Club> getPendingClubs() {
+        // For now, return empty list as we don't have a pending status
+        // This could be extended later with a status field
+        return List.of();
+    }
+    
+    public List<Club> getInactiveClubs() {
+        return clubRepository.findByIsActiveFalse();
+    }
+    
+    public long getInactiveClubCount() {
+        return clubRepository.countByIsActiveFalse();
     }
 }

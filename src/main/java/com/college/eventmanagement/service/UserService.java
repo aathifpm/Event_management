@@ -90,4 +90,20 @@ public class UserService {
     public long getUserCountByRole(Role role) {
         return userRepository.findByRole(role).size();
     }
+
+    public long getInactiveUserCount() {
+        return userRepository.findByIsActiveFalse().size();
+    }
+
+    public List<User> getUsersByStatus(boolean isActive) {
+        if (isActive) {
+            return userRepository.findByIsActiveTrue();
+        } else {
+            return userRepository.findByIsActiveFalse();
+        }
+    }
+
+    public List<User> searchUsers(String searchTerm) {
+        return userRepository.findByNameContainingIgnoreCaseOrEmailContainingIgnoreCase(searchTerm, searchTerm);
+    }
 }

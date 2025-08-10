@@ -23,6 +23,11 @@ public interface UserRepository extends JpaRepository<User, Long> {
     
     List<User> findByIsActiveTrue();
     
+    List<User> findByIsActiveFalse();
+    
+    @Query("SELECT u FROM User u WHERE u.name LIKE %:searchTerm% OR u.email LIKE %:searchTerm%")
+    List<User> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCase(@Param("searchTerm") String searchTerm1, @Param("searchTerm") String searchTerm2);
+    
     @Query("SELECT u FROM User u WHERE u.role = :role AND u.isActive = true")
     List<User> findActiveUsersByRole(@Param("role") Role role);
     

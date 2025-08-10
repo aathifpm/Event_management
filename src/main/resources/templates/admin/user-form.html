@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title} + ' - Event Management'">User Form - Event Management</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="/css/style.css" rel="stylesheet">
+    <style>
+        .form-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem 0;
+        }
+        
+        .form-card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .required {
+            color: #dc3545;
+        }
+        
+        .password-toggle {
+            cursor: pointer;
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6c757d;
+        }
+        
+        .position-relative {
+            position: relative;
+        }
+    </style>
+</head>
+<body>
+    <!-- Include Navigation -->
+    <div th:replace="layout :: header"></div>
+
+    <!-- Form Header -->
+    <section class="form-header">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1 class="mb-0">
+                        <i th:class="${isEdit} ? 'fas fa-edit me-3' : 'fas fa-plus me-3'"></i>
+                        <span th:text="${title}">Create New User</span>
+                    </h1>
+                    <p class="mb-0 mt-2" th:text="${isEdit} ? 'Update user information and settings' : 'Add a new user to the system'">
+                        Add a new user to the system
+                    </p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <a th:href="${isEdit} ? '/admin/users/' + ${user.userId} : '/admin/users'" class="btn btn-outline-light btn-lg">
+                        <i class="fas fa-arrow-left me-2"></i>Back
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="container mt-4">
+        <!-- Success/Error Messages -->
+        <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle me-2"></i>
+            <span th:text="${success}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+
+        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i>
+            <span th:text="${error}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card form-card">
+                    <div class="card-body p-4">
+                        <form th:action="${isEdit} ? '/admin/users/' + ${user.userId} + '/edit' : '/admin/users/create'" 
+                              th:object="${user}" method="post" novalidate>
+                            
+                            <div class="row">
+                                <!-- Basic Information -->
+                                <div class="col-md-6">
+                                    <h5 class="text-primary mb-3">
+                                        <i class="fas fa-user me-2"></i>Basic Information
+                                    </h5>
+                                    
+                                    <div class="form-group">
+                                        <label for="name" class="form-label">
+                                            Full Name <span class="required">*</span>
+                                        </label>
+                                        <input type="text" 
+                                               class="form-control" 
+                                               id="name" 
+                                               th:field="*{name}" 
+                                               th:classappend="${#fields.hasErrors('name')} ? 'is-invalid' : ''"
+                                               placeholder="Enter full name">
+                                        <div th:if="${#fields.hasErrors('name')}" class="invalid-feedback" th:errors="*{name}"></div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="email" class="form-label">
+                                            Email Address <span class="required">*</span>
+                                        </label>
+                                        <input type="email" 
+                                               class="form-control" 
+                                               id="email" 
+                                               th:field="*{email}" 
+                                               th:classappend="${#fields.hasErrors('email')} ? 'is-invalid' : ''"
+                                               placeholder="Enter email address">
+                                        <div th:if="${#fields.hasErrors('email')}" class="invalid-feedback" th:errors="*{email}"></div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="department" class="form-label">Department</label>
+                                        <input type="text" 
+                                               class="form-control" 
+                                               id="department" 
+                                               th:field="*{department}" 
+                                               placeholder="Enter department">
+                                    </div>
+                                </div>
+
+                                <!-- Role and Security -->
+                                <div class="col-md-6">
+                                    <h5 class="text-primary mb-3">
+                                        <i class="fas fa-shield-alt me-2"></i>Role & Security
+                                    </h5>
+
+                                    <div class="form-group">
+                                        <label for="role" class="form-label">
+                                            Role <span class="required">*</span>
+                                        </label>
+                                        <select class="form-select" 
+                                                id="role" 
+                                                th:field="*{role}" 
+                                                th:classappend="${#fields.hasErrors('role')} ? 'is-invalid' : ''">
+                                            <option value="">Select Role</option>
+                                            <option th:each="roleOption : ${roles}" 
+                                                    th:value="${roleOption}" 
+                                                    th:text="${roleOption}"
+                                                    th:selected="*{role} == ${roleOption}">Role</option>
+                                        </select>
+                                        <div th:if="${#fields.hasErrors('role')}" class="invalid-feedback" th:errors="*{role}"></div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="form-label">Status</label>
+                                        <div class="form-check">
+                                            <input class="form-check-input" 
+                                                   type="checkbox" 
+                                                   id="isActive" 
+                                                   th:field="*{isActive}">
+                                            <label class="form-check-label" for="isActive">
+                                                Active User
+                                            </label>
+                                        </div>
+                                        <small class="form-text text-muted">Inactive users cannot log in to the system</small>
+                                    </div>
+
+                                    <!-- Password Fields -->
+                                    <div th:if="${!isEdit}">
+                                        <div class="form-group">
+                                            <label for="password" class="form-label">
+                                                Password <span class="required">*</span>
+                                            </label>
+                                            <div class="position-relative">
+                                                <input type="password" 
+                                                       class="form-control" 
+                                                       id="password" 
+                                                       th:field="*{password}" 
+                                                       th:classappend="${#fields.hasErrors('password')} ? 'is-invalid' : ''"
+                                                       placeholder="Enter password">
+                                                <i class="fas fa-eye password-toggle" onclick="togglePassword('password')"></i>
+                                            </div>
+                                            <div th:if="${#fields.hasErrors('password')}" class="invalid-feedback" th:errors="*{password}"></div>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="confirmPassword" class="form-label">
+                                                Confirm Password <span class="required">*</span>
+                                            </label>
+                                            <div class="position-relative">
+                                                <input type="password" 
+                                                       class="form-control" 
+                                                       id="confirmPassword" 
+                                                       name="confirmPassword" 
+                                                       placeholder="Confirm password">
+                                                <i class="fas fa-eye password-toggle" onclick="togglePassword('confirmPassword')"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Password Change Fields (Edit Mode) -->
+                                    <div th:if="${isEdit}">
+                                        <h6 class="text-secondary mb-3">
+                                            <i class="fas fa-key me-2"></i>Change Password
+                                        </h6>
+                                        
+                                        <div class="form-group">
+                                            <label for="newPassword" class="form-label">New Password</label>
+                                            <div class="position-relative">
+                                                <input type="password" 
+                                                       class="form-control" 
+                                                       id="newPassword" 
+                                                       name="newPassword" 
+                                                       placeholder="Enter new password (leave blank to keep current)">
+                                                <i class="fas fa-eye password-toggle" onclick="togglePassword('newPassword')"></i>
+                                            </div>
+                                            <small class="form-text text-muted">Leave blank to keep current password</small>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="confirmPassword" class="form-label">Confirm New Password</label>
+                                            <div class="position-relative">
+                                                <input type="password" 
+                                                       class="form-control" 
+                                                       id="confirmPassword" 
+                                                       name="confirmPassword" 
+                                                       placeholder="Confirm new password">
+                                                <i class="fas fa-eye password-toggle" onclick="togglePassword('confirmPassword')"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Form Actions -->
+                            <div class="d-flex justify-content-between mt-4 pt-3 border-top">
+                                <a th:href="${isEdit} ? '/admin/users/' + ${user.userId} : '/admin/users'" 
+                                   class="btn btn-outline-secondary btn-lg">
+                                    <i class="fas fa-times me-2"></i>Cancel
+                                </a>
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <i th:class="${isEdit} ? 'fas fa-save me-2' : 'fas fa-plus me-2'"></i>
+                                    <span th:text="${isEdit} ? 'Update User' : 'Create User'">Create User</span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Include Footer -->
+    <div th:replace="layout :: footer"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function togglePassword(fieldId) {
+            const field = document.getElementById(fieldId);
+            const icon = field.nextElementSibling;
+            
+            if (field.type === 'password') {
+                field.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                field.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+
+        // Form validation
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.querySelector('form');
+            form.addEventListener('submit', function(e) {
+                const newPassword = document.getElementById('newPassword');
+                const confirmPassword = document.getElementById('confirmPassword');
+                const isEdit = /*[[${isEdit}]]*/ false;
+                
+                if (!isEdit) {
+                    const password = document.getElementById('password');
+                    if (password.value !== confirmPassword.value) {
+                        e.preventDefault();
+                        alert('Passwords do not match!');
+                        return false;
+                    }
+                } else {
+                    if (newPassword && newPassword.value && newPassword.value !== confirmPassword.value) {
+                        e.preventDefault();
+                        alert('New passwords do not match!');
+                        return false;
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

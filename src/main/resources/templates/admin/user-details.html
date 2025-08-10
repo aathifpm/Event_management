@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title} + ' - Event Management'">User Details - Event Management</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="/css/style.css" rel="stylesheet">
+    <style>
+        .user-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem 0;
+        }
+        
+        .user-avatar-large {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 3rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+        
+        .info-card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+        
+        .role-badge {
+            font-size: 0.9em;
+            padding: 0.5em 1em;
+        }
+        
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 8px;
+        }
+        
+        .activity-item {
+            border-left: 3px solid #dee2e6;
+            padding-left: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .activity-item.club {
+            border-left-color: #007bff;
+        }
+        
+        .activity-item.event {
+            border-left-color: #28a745;
+        }
+    </style>
+</head>
+<body>
+    <!-- Include Navigation -->
+    <div th:replace="layout :: header"></div>
+
+    <!-- User Header -->
+    <section class="user-header">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-2 text-center">
+                    <div class="user-avatar-large mx-auto" th:text="${#strings.substring(user.name, 0, 1).toUpperCase()}">A</div>
+                </div>
+                <div class="col-md-7">
+                    <h1 class="mb-0" th:text="${user.name}">User Name</h1>
+                    <p class="mb-2" th:text="${user.email}">user@example.com</p>
+                    <div class="d-flex align-items-center">
+                        <span class="badge role-badge me-3"
+                              th:classappend="${user.role.name() == 'ADMIN'} ? 'bg-danger' : 
+                                            (${user.role.name() == 'CLUB_HEAD'} ? 'bg-warning' : 'bg-success')"
+                              th:text="${user.role}">STUDENT</span>
+                        <span th:if="${user.isActive}" class="text-light">
+                            <span class="status-indicator bg-success"></span>Active
+                        </span>
+                        <span th:unless="${user.isActive}" class="text-light">
+                            <span class="status-indicator bg-danger"></span>Inactive
+                        </span>
+                    </div>
+                </div>
+                <div class="col-md-3 text-end">
+                    <a th:href="@{'/admin/users/' + ${user.userId} + '/edit'}" class="btn btn-light btn-lg me-2">
+                        <i class="fas fa-edit me-2"></i>Edit User
+                    </a>
+                    <a href="/admin/users" class="btn btn-outline-light btn-lg">
+                        <i class="fas fa-arrow-left me-2"></i>Back
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="container mt-4">
+        <!-- Success/Error Messages -->
+        <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle me-2"></i>
+            <span th:text="${success}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+
+        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i>
+            <span th:text="${error}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+
+        <div class="row">
+            <!-- User Information -->
+            <div class="col-md-4">
+                <div class="card info-card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-user me-2"></i>User Information
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label text-muted">Full Name</label>
+                            <p class="fw-bold" th:text="${user.name}">User Name</p>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-muted">Email Address</label>
+                            <p class="fw-bold" th:text="${user.email}">user@example.com</p>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-muted">Role</label>
+                            <p>
+                                <span class="badge role-badge"
+                                      th:classappend="${user.role.name() == 'ADMIN'} ? 'bg-danger' : 
+                                                    (${user.role.name() == 'CLUB_HEAD'} ? 'bg-warning' : 'bg-success')"
+                                      th:text="${user.role}">STUDENT</span>
+                            </p>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-muted">Department</label>
+                            <p class="fw-bold" th:text="${user.department ?: 'Not specified'}">Computer Science</p>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-muted">Status</label>
+                            <p>
+                                <span th:if="${user.isActive}" class="text-success">
+                                    <span class="status-indicator bg-success"></span>Active
+                                </span>
+                                <span th:unless="${user.isActive}" class="text-danger">
+                                    <span class="status-indicator bg-danger"></span>Inactive
+                                </span>
+                            </p>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-muted">Member Since</label>
+                            <p class="fw-bold" th:text="${#temporals.format(user.createdAt, 'MMMM dd, yyyy')}">January 01, 2024</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="card info-card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-cogs me-2"></i>Quick Actions
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-grid gap-2">
+                            <a th:href="@{'/admin/users/' + ${user.userId} + '/edit'}" class="btn btn-outline-primary">
+                                <i class="fas fa-edit me-2"></i>Edit User
+                            </a>
+                            <form th:action="@{'/admin/users/' + ${user.userId} + '/toggle-status'}" method="post">
+                                <button type="submit" 
+                                        class="btn w-100"
+                                        th:classappend="${user.isActive} ? 'btn-outline-warning' : 'btn-outline-success'"
+                                        onclick="return confirm('Are you sure you want to change this user\'s status?')">
+                                    <i th:class="${user.isActive} ? 'fas fa-user-slash me-2' : 'fas fa-user-check me-2'"></i>
+                                    <span th:text="${user.isActive} ? 'Deactivate User' : 'Activate User'">Toggle Status</span>
+                                </button>
+                            </form>
+                            <form th:action="@{'/admin/users/' + ${user.userId} + '/delete'}" 
+                                  method="post" 
+                                  th:if="${user.userId != currentUser?.userId}">
+                                <button type="submit" 
+                                        class="btn btn-outline-danger w-100"
+                                        onclick="return confirm('Are you sure you want to delete this user? This action cannot be undone.')">
+                                    <i class="fas fa-trash me-2"></i>Delete User
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Activity and Memberships -->
+            <div class="col-md-8">
+                <!-- Club Memberships -->
+                <div class="card info-card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-users me-2"></i>Club Memberships
+                            <span class="badge bg-primary ms-2" th:text="${#lists.size(userClubs)}">0</span>
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div th:if="${#lists.isEmpty(userClubs)}" class="text-center py-4">
+                            <i class="fas fa-users text-muted" style="font-size: 2rem;"></i>
+                            <p class="text-muted mt-2">No club memberships found</p>
+                        </div>
+                        <div th:each="club : ${userClubs}" class="activity-item club">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h6 class="mb-1" th:text="${club.clubName}">Club Name</h6>
+                                    <p class="text-muted mb-0" th:text="${club.description}">Club description</p>
+                                </div>
+                                <a th:href="@{'/clubs/' + ${club.clubId}}" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Managed Clubs (if Club Head) -->
+                <div th:if="${user.role.name() == 'CLUB_HEAD' and managedClubs != null}" class="card info-card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-crown me-2"></i>Managed Clubs
+                            <span class="badge bg-warning ms-2" th:text="${#lists.size(managedClubs)}">0</span>
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div th:if="${#lists.isEmpty(managedClubs)}" class="text-center py-4">
+                            <i class="fas fa-crown text-muted" style="font-size: 2rem;"></i>
+                            <p class="text-muted mt-2">No managed clubs found</p>
+                        </div>
+                        <div th:each="club : ${managedClubs}" class="activity-item club">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h6 class="mb-1" th:text="${club.clubName}">Club Name</h6>
+                                    <p class="text-muted mb-1" th:text="${club.description}">Club description</p>
+                                    <small class="text-success">
+                                        <i class="fas fa-user-friends me-1"></i>
+                                        <span th:text="${club.memberCount ?: 0}">0</span> members
+                                    </small>
+                                </div>
+                                <div>
+                                    <a th:href="@{'/clubs/' + ${club.clubId}}" class="btn btn-sm btn-outline-primary me-1">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a th:href="@{'/clubs/' + ${club.clubId} + '/admin'}" class="btn btn-sm btn-outline-warning">
+                                        <i class="fas fa-cogs"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Event Registrations -->
+                <div class="card info-card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-calendar-check me-2"></i>Event Registrations
+                            <span class="badge bg-success ms-2" th:text="${#lists.size(userEvents)}">0</span>
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div th:if="${#lists.isEmpty(userEvents)}" class="text-center py-4">
+                            <i class="fas fa-calendar-check text-muted" style="font-size: 2rem;"></i>
+                            <p class="text-muted mt-2">No event registrations found</p>
+                        </div>
+                        <div th:each="registration : ${userEvents}" class="activity-item event">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h6 class="mb-1" th:text="${registration.event.eventName}">Event Name</h6>
+                                    <p class="text-muted mb-1" th:text="${registration.event.description}">Event description</p>
+                                    <small class="text-muted">
+                                        <i class="fas fa-calendar me-1"></i>
+                                        <span th:text="${#temporals.format(registration.event.eventDate, 'MMM dd, yyyy')}">Jan 01, 2024</span>
+                                    </small>
+                                    <span class="badge bg-info ms-2" th:text="${registration.registrationStatus}">CONFIRMED</span>
+                                </div>
+                                <a th:href="@{'/events/' + ${registration.event.eventId}}" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Include Footer -->
+    <div th:replace="layout :: footer"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

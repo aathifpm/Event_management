@@ -1,29 +1,30 @@
 package com.college.eventmanagement.controller;
 
-import com.college.eventmanagement.model.Event;
-import com.college.eventmanagement.model.Club;
-import com.college.eventmanagement.model.User;
-import com.college.eventmanagement.model.EventRegistration;
-import com.college.eventmanagement.service.EventService;
-import com.college.eventmanagement.service.ClubService;
-import com.college.eventmanagement.service.UserService;
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import jakarta.validation.Valid;
+import com.college.eventmanagement.model.Club;
+import com.college.eventmanagement.model.Event;
+import com.college.eventmanagement.model.EventRegistration;
+import com.college.eventmanagement.model.User;
+import com.college.eventmanagement.service.ClubService;
+import com.college.eventmanagement.service.EventService;
+import com.college.eventmanagement.service.UserService;
 
-import java.util.List;
-import java.util.Optional;
+import jakarta.validation.Valid;
 
 @Controller
 public class EventController {
@@ -156,17 +157,12 @@ public class EventController {
         }
         
         // Check if user has permission to create events
-        boolean canCreate = false;
-        switch (currentUser.getRole()) {
-            case ADMIN:
-                canCreate = true;
-                break;
-            case CLUB_HEAD:
-                canCreate = true;
-                break;
-            default:
-                canCreate = false;
-        }
+        boolean canCreate;
+        canCreate = switch (currentUser.getRole()) {
+            case ADMIN -> true;
+            case CLUB_HEAD -> true;
+            default -> false;
+        };
         
         if (!canCreate) {
             model.addAttribute("error", "You don't have permission to create events");

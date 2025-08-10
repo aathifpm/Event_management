@@ -8,13 +8,16 @@ com\college\eventmanagement\controller\EventController$1.class
 com\college\eventmanagement\model\EventRegistration.class
 com\college\eventmanagement\model\Event.class
 com\college\eventmanagement\repository\EventRepository.class
+com\college\eventmanagement\controller\DashboardController$1.class
 com\college\eventmanagement\model\Club.class
 com\college\eventmanagement\controller\ClubController.class
 com\college\eventmanagement\service\ClubMemberService.class
+com\college\eventmanagement\controller\ClubController$1.class
 com\college\eventmanagement\repository\ClubRepository.class
 com\college\eventmanagement\model\EventStatus.class
 com\college\eventmanagement\controller\EventController.class
 com\college\eventmanagement\repository\UserRepository.class
+com\college\eventmanagement\controller\AdminController.class
 com\college\eventmanagement\repository\NotificationRepository.class
 com\college\eventmanagement\repository\ClubMemberRepository.class
 com\college\eventmanagement\controller\HomeController.class

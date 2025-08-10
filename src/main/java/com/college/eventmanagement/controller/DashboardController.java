@@ -1,11 +1,7 @@
 package com.college.eventmanagement.controller;
 
-import com.college.eventmanagement.model.Event;
-import com.college.eventmanagement.model.User;
-import com.college.eventmanagement.model.Role;
-import com.college.eventmanagement.service.EventService;
-import com.college.eventmanagement.service.ClubService;
-import com.college.eventmanagement.service.UserService;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -13,7 +9,12 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
-import java.util.List;
+import com.college.eventmanagement.model.Event;
+import com.college.eventmanagement.model.Role;
+import com.college.eventmanagement.model.User;
+import com.college.eventmanagement.service.ClubService;
+import com.college.eventmanagement.service.EventService;
+import com.college.eventmanagement.service.UserService;
 
 @Controller
 public class DashboardController {
@@ -55,22 +56,26 @@ public class DashboardController {
         model.addAttribute("upcomingEventsList", upcomingEventsList);
 
         // Role-specific data
-        if (currentUser.getRole() == Role.ADMIN) {
-            // Admin dashboard data
-            model.addAttribute("totalStudents", userService.getUserCountByRole(Role.STUDENT));
-            model.addAttribute("totalClubHeads", userService.getUserCountByRole(Role.CLUB_HEAD));
-            model.addAttribute("pendingEvents", eventService.getPendingEventCount());
-            model.addAttribute("allEvents", eventService.getAllEvents());
-        } else if (currentUser.getRole() == Role.CLUB_HEAD) {
-            // Club Head dashboard data
-            model.addAttribute("myClubs", clubService.getClubsByHead(currentUser));
-            model.addAttribute("myClubEvents", eventService.getEventsByClubHead(currentUser));
-            model.addAttribute("myClubMembers", clubService.getTotalMembersByHead(currentUser));
-        } else if (currentUser.getRole() == Role.STUDENT) {
-            // Student dashboard data
-            model.addAttribute("myRegistrations", eventService.getRegistrationsByUser(currentUser));
-            model.addAttribute("myClubs", clubService.getClubsByMember(currentUser));
-            model.addAttribute("recommendedEvents", eventService.getRecommendedEvents(currentUser));
+        switch (currentUser.getRole()) {
+            case ADMIN -> {
+                // Admin dashboard data
+                model.addAttribute("totalStudents", userService.getUserCountByRole(Role.STUDENT));
+                model.addAttribute("totalClubHeads", userService.getUserCountByRole(Role.CLUB_HEAD));
+                model.addAttribute("pendingEvents", eventService.getPendingEventCount());
+                model.addAttribute("allEvents", eventService.getAllEvents());
+            }
+            case CLUB_HEAD -> {
+                // Club Head dashboard data
+                model.addAttribute("myClubs", clubService.getClubsByHead(currentUser));
+                model.addAttribute("myClubEvents", eventService.getEventsByClubHead(currentUser));
+                model.addAttribute("myClubMembers", clubService.getTotalMembersByHead(currentUser));
+            }
+            case STUDENT -> {
+                // Student dashboard data
+                model.addAttribute("myRegistrations", eventService.getRegistrationsByUser(currentUser));
+                model.addAttribute("myClubs", clubService.getClubsByMember(currentUser));
+                model.addAttribute("recommendedEvents", eventService.getRecommendedEvents(currentUser));
+            }
         }
 
         return "dashboard/index";

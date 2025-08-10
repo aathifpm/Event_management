@@ -21,8 +21,8 @@ import com.college.eventmanagement.model.Club;
 import com.college.eventmanagement.model.ClubMember;
 import com.college.eventmanagement.model.Event;
 import com.college.eventmanagement.model.User;
-import com.college.eventmanagement.service.ClubService;
 import com.college.eventmanagement.service.ClubMemberService;
+import com.college.eventmanagement.service.ClubService;
 import com.college.eventmanagement.service.EventService;
 import com.college.eventmanagement.service.UserService;
 
@@ -76,15 +76,9 @@ public class ClubController {
                 
                 // Role-specific data
                 switch (currentUser.getRole()) {
-                    case ADMIN:
-                        model.addAttribute("pendingClubs", clubService.getPendingClubsCount());
-                        break;
-                    case CLUB_HEAD:
-                        model.addAttribute("myClubs", clubService.getClubsByHead(currentUser));
-                        break;
-                    case STUDENT:
-                        model.addAttribute("myJoinedClubs", clubService.getClubsByMember(currentUser));
-                        break;
+                    case ADMIN -> model.addAttribute("pendingClubs", clubService.getPendingClubsCount());
+                    case CLUB_HEAD -> model.addAttribute("myClubs", clubService.getClubsByHead(currentUser));
+                    case STUDENT -> model.addAttribute("myJoinedClubs", clubService.getClubsByMember(currentUser));
                 }
             }
         }
@@ -493,5 +487,67 @@ public class ClubController {
         model.addAttribute("title", club.getClubName() + " - Admin Panel");
         
         return "clubs/admin";
+    }
+
+    // Global Clubs Admin Panel (Admin only)
+    @GetMapping("/admin")
+    public String clubsAdmin(Model model, 
+                           @RequestParam(value = "search", required = false) String search,
+                           @RequestParam(value = "status", required = false) String statusFilter,
+                           RedirectAttributes redirectAttributes) {
+        
+        // Check if current user is admin
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.isAuthenticated()) {
+            return "redirect:/login";
+        }
+
+        Optional<User> userOpt = userService.getUserByEmail(auth.getName());
+        if (userOpt.isEmpty() || !userOpt.get().getRole().name().equals("ADMIN")) {
+            redirectAttributes.addFlashAttribute("error", "Access denied. Admin privileges required.");
+            return "redirect:/dashboard";
+        }
+
+        User currentUser = userOpt.get();
+        List<Club> clubs;
+        
+        // Apply filters
+        if (search != null && !search.trim().isEmpty()) {
+            clubs = clubService.searchClubs(search.trim());
+            model.addAttribute("searchTerm", search);
+        } else if ("pending".equals(statusFilter)) {
+            clubs = clubService.getPendingClubs();
+            model.addAttribute("statusFilter", statusFilter);
+        } else if ("inactive".equals(statusFilter)) {
+            clubs = clubService.getInactiveClubs();
+            model.addAttribute("statusFilter", statusFilter);
+        } else {
+            clubs = clubService.getAllClubs();
+        }
+
+        // Get statistics
+        model.addAttribute("clubs", clubs);
+        model.addAttribute("totalClubs", clubService.getTotalClubCount());
+        model.addAttribute("activeClubs", clubService.getActiveClubCount());
+        model.addAttribute("pendingClubs", clubService.getPendingClubsCount());
+        model.addAttribute("inactiveClubs", clubService.getInactiveClubCount());
+        model.addAttribute("totalMembers", clubMemberService.getTotalActiveMembers());
+        model.addAttribute("totalEvents", eventService.getTotalEventCount());
+        model.addAttribute("currentUser", currentUser);
+        model.addAttribute("title", "Clubs Administration");
+
+        // Create maps for member and event counts to avoid lazy loading issues
+        java.util.Map<Long, Long> memberCounts = new java.util.HashMap<>();
+        java.util.Map<Long, Long> eventCounts = new java.util.HashMap<>();
+        
+        for (Club club : clubs) {
+            memberCounts.put(club.getClubId(), clubMemberService.getActiveMemberCount(club));
+            eventCounts.put(club.getClubId(), (long) eventService.getEventsByClub(club.getClubId()).size());
+        }
+        
+        model.addAttribute("memberCounts", memberCounts);
+        model.addAttribute("eventCounts", eventCounts);
+
+        return "clubs/admin-panel";
     }
 }

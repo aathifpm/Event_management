@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: event-management-app
+    runtime: docker
+    plan: free
+    branch: master
+    buildCommand: ./mvnw clean package -DskipTests
+    startCommand: java -Dserver.port=$PORT -jar target/*.jar
+    envVars:
+      - key: JAVA_OPTS
+        value: -Xmx512m -Xms256m
+      - key: SPRING_PROFILES_ACTIVE
+        value: production
+      - key: SERVER_PORT
+        fromService:
+          type: web
+          name: event-management-app
+          property: port
+    autoDeploy: true
+    healthCheckPath: /
+    disk:
+      name: data
+      mountPath: /data
+      sizeGB: 1
