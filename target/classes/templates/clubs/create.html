@@ -10,12 +10,11 @@
 </head>
 <body>
     <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <nav class="navbar navbar-expand-lg fixed-top">
         <div class="container">
             <a class="navbar-brand" th:href="@{/}">
                 <i class="fas fa-graduation-cap me-2"></i>
-                College Events
-            </a>
+                Event Hub            </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -44,7 +43,7 @@
     </nav>
 
     <!-- Breadcrumb -->
-    <div class="container mt-3">
+    <div class="container main-content">
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a th:href="@{/}" class="text-decoration-none">Home</a></li>
@@ -55,7 +54,7 @@
     </div>
 
     <!-- Create Club Form -->
-    <div class="container mt-4">
+    <div class="container main-content">
         <div class="row justify-content-center">
             <div class="col-lg-8">
                 <div class="card shadow-sm">
@@ -184,11 +183,11 @@
         <div class="container">
             <div class="row">
                 <div class="col-md-6">
-                    <h5>College Event Management</h5>
+                    <h5>Event Hub</h5>
                     <p class="mb-0">Connecting students through events and clubs</p>
                 </div>
                 <div class="col-md-6 text-end">
-                    <p class="mb-0">&copy; 2025 College Event Management. All rights reserved.</p>
+                    <p class="mb-0">&copy; 2025 Event Hub. All rights reserved.</p>
                 </div>
             </div>
         </div>

@@ -3,78 +3,126 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register - College Event Management</title>
+    <title>Register - Event Hub</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link th:href="@{/css/style.css}" rel="stylesheet">
 </head>
-<body class="bg-light">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-md-8 col-lg-6">
-                <div class="card shadow mt-5">
-                    <div class="card-header text-center bg-success text-white">
-                        <h3><i class="fas fa-user-plus"></i> Register</h3>
+<body class="bg-pattern" style="background: var(--primary-gradient); min-height: 100vh;">
+    <div class="container-fluid min-vh-100 d-flex align-items-stretch py-4">
+        <div class="row w-100 g-0 flex-fill">
+            <!-- Left Side - Branding -->
+            <div class="col-lg-5 d-none d-lg-flex align-items-center justify-content-center" style="min-height: 700px;">
+                <div class="text-center text-white px-4">
+                    <div class="feature-icon mx-auto mb-3" style="width: 100px; height: 100px; font-size: 2.5rem;">
+                        <i class="fas fa-rocket"></i>
                     </div>
-                    <div class="card-body">
-                        <form th:action="@{/register}" method="post">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="firstName" class="form-label">
-                                            <i class="fas fa-user"></i> First Name
-                                        </label>
-                                        <input type="text" class="form-control" id="firstName" name="firstName" required>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="lastName" class="form-label">
-                                            <i class="fas fa-user"></i> Last Name
-                                        </label>
-                                        <input type="text" class="form-control" id="lastName" name="lastName" required>
-                                    </div>
-                                </div>
+                    <h1 class="hero-title mb-3" style="font-size: 2.5rem;">Join Event Hub</h1>
+                    <p class="lead text-white-50 mb-4" style="font-size: 1.1rem;">
+                        Start your journey into amazing college events and connect with vibrant campus communities.
+                    </p>
+                    <div class="glass-card p-3 mx-auto" style="max-width: 350px;">
+                        <h6 class="text-white mb-3">Why Join Us?</h6>
+                        <div class="text-start">
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="fas fa-check-circle text-white me-3"></i>
+                                <small class="text-white-50">Discover amazing events</small>
                             </div>
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="fas fa-check-circle text-white me-3"></i>
+                                <small class="text-white-50">Connect with clubs</small>
+                            </div>
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-check-circle text-white me-3"></i>
+                                <small class="text-white-50">Build your network</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Side - Register Form -->
+            <div class="col-lg-7 auth-form-container">
+                <div class="d-flex justify-content-center align-items-center py-4 px-4" style="min-height: 100vh;">
+                    <div class="w-100" style="max-width: 500px;">
+                    <div class="glass-card shadow-lg border-0">
+                        <div class="card-body p-4">
+                            <!-- Logo for mobile -->
+                            <div class="text-center d-lg-none mb-3">
+                                <h4 class="text-white">
+                                    <i class="fas fa-graduation-cap me-2"></i>Event Hub
+                                </h4>
+                            </div>
+
+                            <div class="text-center mb-4">
+                                <h3 class="card-title mb-2 text-white">Create Your Account</h3>
+                                <p class="text-white-50">Join thousands of students in Event Hub</p>
+                            </div>
+                            <!-- Registration Form -->
+                            <form th:action="@{/register}" method="post" class="ajax-form">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="firstName" class="form-label text-white">
+                                                <i class="fas fa-user me-2"></i>First Name
+                                            </label>
+                                            <input type="text" class="form-control" id="firstName" name="firstName" 
+                                                   placeholder="Enter first name" required style="background: rgba(255,255,255,0.9);">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="lastName" class="form-label text-white">
+                                                <i class="fas fa-user me-2"></i>Last Name
+                                            </label>
+                                            <input type="text" class="form-control" id="lastName" name="lastName" 
+                                                   placeholder="Enter last name" required style="background: rgba(255,255,255,0.9);">
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="email" class="form-label text-white">
+                                        <i class="fas fa-envelope me-2"></i>Email Address
+                                    </label>
+                                    <input type="email" class="form-control" id="email" name="email" 
+                                           placeholder="Enter your email" required style="background: rgba(255,255,255,0.9);">
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="studentId" class="form-label text-white">
+                                        <i class="fas fa-id-card me-2"></i>Student ID
+                                    </label>
+                                    <input type="text" class="form-control" id="studentId" name="studentId" 
+                                           placeholder="Enter student ID" required style="background: rgba(255,255,255,0.9);">
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="password" class="form-label text-white">
+                                                <i class="fas fa-lock me-2"></i>Password
+                                            </label>
+                                            <input type="password" class="form-control" id="password" name="password" 
+                                                   placeholder="Create password" required style="background: rgba(255,255,255,0.9);">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="confirmPassword" class="form-label text-white">
+                                                <i class="fas fa-lock me-2"></i>Confirm Password
+                                            </label>
+                                            <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" 
+                                                   placeholder="Confirm password" required style="background: rgba(255,255,255,0.9);">
+                                        </div>
+                                    </div>
+                                </div>
                             
                             <div class="mb-3">
-                                <label for="email" class="form-label">
-                                    <i class="fas fa-envelope"></i> Email
+                                <label for="department" class="form-label text-white">
+                                    <i class="fas fa-building me-2"></i>Department
                                 </label>
-                                <input type="email" class="form-control" id="email" name="email" required>
-                            </div>
-                            
-                            <div class="mb-3">
-                                <label for="studentId" class="form-label">
-                                    <i class="fas fa-id-card"></i> Student ID
-                                </label>
-                                <input type="text" class="form-control" id="studentId" name="studentId" required>
-                            </div>
-                            
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="password" class="form-label">
-                                            <i class="fas fa-lock"></i> Password
-                                        </label>
-                                        <input type="password" class="form-control" id="password" name="password" required>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="confirmPassword" class="form-label">
-                                            <i class="fas fa-lock"></i> Confirm Password
-                                        </label>
-                                        <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="mb-3">
-                                <label for="department" class="form-label">
-                                    <i class="fas fa-building"></i> Department
-                                </label>
-                                <select class="form-select" id="department" name="department" required>
+                                <select class="form-select" id="department" name="department" required style="background: rgba(255,255,255,0.9);">
                                     <option value="">Select Department</option>
                                     <option value="Computer Science">Computer Science</option>
                                     <option value="Electronics">Electronics</option>
@@ -85,10 +133,10 @@
                             </div>
                             
                             <div class="mb-3">
-                                <label for="year" class="form-label">
-                                    <i class="fas fa-calendar"></i> Year
+                                <label for="year" class="form-label text-white">
+                                    <i class="fas fa-calendar me-2"></i>Year
                                 </label>
-                                <select class="form-select" id="year" name="year" required>
+                                <select class="form-select" id="year" name="year" required style="background: rgba(255,255,255,0.9);">
                                     <option value="">Select Year</option>
                                     <option value="1">First Year</option>
                                     <option value="2">Second Year</option>
@@ -99,32 +147,32 @@
                             
                             <div class="mb-3 form-check">
                                 <input type="checkbox" class="form-check-input" id="terms" name="terms" required>
-                                <label class="form-check-label" for="terms">
-                                    I agree to the <a href="#" class="text-primary">Terms and Conditions</a>
+                                <label class="form-check-label text-white" for="terms">
+                                    I agree to the <a href="#" class="text-light">Terms and Conditions</a>
                                 </label>
                             </div>
                             
                             <div class="d-grid">
-                                <button type="submit" class="btn btn-success">
+                                <button type="submit" class="btn btn-gradient">
                                     <i class="fas fa-user-plus"></i> Register
                                 </button>
                             </div>
                         </form>
                         
-                        <hr>
+                        <hr class="my-4 border-light">
                         
                         <div class="text-center">
-                            <p class="mb-0">Already have an account? 
-                                <a th:href="@{/login}" class="text-primary">Login here</a>
+                            <p class="mb-0 text-white">Already have an account? 
+                                <a th:href="@{/login}" class="text-light fw-bold">Login here</a>
                             </p>
                         </div>
                     </div>
-                </div>
-                
-                <div class="text-center mt-3">
-                    <a th:href="@{/}" class="text-muted">
-                        <i class="fas fa-home"></i> Back to Home
-                    </a>
+                    
+                    <div class="text-center mt-3">
+                        <a th:href="@{/}" class="text-light text-decoration-none">
+                            <i class="fas fa-home"></i> Back to Home
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>

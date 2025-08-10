@@ -10,14 +10,14 @@
 </head>
 <body>
     <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <nav class="navbar navbar-expand-lg fixed-top">
         <div class="container">
             <a class="navbar-brand" th:href="@{/}">
                 <i class="fas fa-graduation-cap me-2"></i>
-                College Events
+                Event Hub
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
+                <i class="fas fa-bars"></i>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
@@ -56,23 +56,24 @@
     </nav>
 
     <!-- Main Content -->
-    <div class="container mt-4">
-        <div class="row justify-content-center">
-            <div class="col-lg-8">
-                <!-- Breadcrumb -->
-                <nav aria-label="breadcrumb" class="mb-4">
-                    <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a th:href="@{/events}">Events</a></li>
-                        <li class="breadcrumb-item active">Create New Event</li>
-                    </ol>
-                </nav>
+    <div class="main-content">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <!-- Breadcrumb -->
+                    <nav aria-label="breadcrumb" class="mb-4">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a th:href="@{/events}" class="text-decoration-none">Events</a></li>
+                            <li class="breadcrumb-item active">Create New Event</li>
+                        </ol>
+                    </nav>
 
-                <div class="card">
-                    <div class="card-header bg-success text-white">
-                        <h4 class="mb-0">
-                            <i class="fas fa-plus me-2"></i>Create New Event
-                        </h4>
-                    </div>
+                    <div class="card fade-in">
+                        <div class="dashboard-header">
+                            <h4 class="mb-0">
+                                <i class="fas fa-plus me-2"></i>Create New Event
+                            </h4>
+                        </div>
                     <div class="card-body">
                         <!-- Show selected club if pre-selected -->
                         <div th:if="${selectedClub}" class="alert alert-info mb-4">
@@ -157,10 +158,10 @@
 
                             <!-- Form Actions -->
                             <div class="d-flex justify-content-between pt-3 border-top">
-                                <a th:href="@{/events}" class="btn btn-secondary">
+                                <a th:href="@{/events}" class="btn btn-outline-primary">
                                     <i class="fas fa-arrow-left me-2"></i>Cancel
                                 </a>
-                                <button type="submit" class="btn btn-success">
+                                <button type="submit" class="btn btn-primary">
                                     <i class="fas fa-save me-2"></i>Create Event
                                 </button>
                             </div>
@@ -169,24 +170,24 @@
                 </div>
 
                 <!-- Help Section -->
-                <div class="card mt-4">
+                <div class="card mt-4 glass-card">
                     <div class="card-header">
-                        <h6 class="mb-0"><i class="fas fa-lightbulb me-2"></i>Tips for Creating a Great Event</h6>
+                        <h6 class="mb-0"><i class="fas fa-lightbulb me-2 text-primary"></i>Tips for Creating a Great Event</h6>
                     </div>
                     <div class="card-body">
                         <div class="row">
                             <div class="col-md-6">
                                 <ul class="list-unstyled">
-                                    <li><i class="fas fa-check text-success me-2"></i>Use a clear, descriptive event name</li>
-                                    <li><i class="fas fa-check text-success me-2"></i>Provide detailed description with agenda</li>
-                                    <li><i class="fas fa-check text-success me-2"></i>Set realistic participant limits</li>
+                                    <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Use a clear, descriptive event name</li>
+                                    <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Provide detailed description with agenda</li>
+                                    <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Set realistic participant limits</li>
                                 </ul>
                             </div>
                             <div class="col-md-6">
                                 <ul class="list-unstyled">
-                                    <li><i class="fas fa-check text-success me-2"></i>Include venue address and directions</li>
-                                    <li><i class="fas fa-check text-success me-2"></i>Set registration deadline appropriately</li>
-                                    <li><i class="fas fa-check text-success me-2"></i>Add an attractive event image</li>
+                                    <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Include venue address and directions</li>
+                                    <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Set registration deadline appropriately</li>
+                                    <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Add an attractive event image</li>
                                 </ul>
                             </div>
                         </div>

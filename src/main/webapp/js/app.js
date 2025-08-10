@@ -1,361 +1,500 @@
 /**
- * College Event Management System - Main JavaScript File
- * Handles common functionality across the application
+ * EventHub - Modern Event Management System
+ * Enhanced JavaScript functionality for improved user experience
  */
 
 // Application namespace
-const EventManagement = {
+const EventHub = {
     // Configuration
     config: {
         apiEndpoint: '/api',
         pageSize: 10,
-        animationDuration: 300
+        animationDuration: 300,
+        debounceDelay: 300
     },
 
     // Initialize the application
     init: function() {
         this.bindEvents();
         this.initComponents();
+        this.initAnimations();
         this.loadNotifications();
+        this.initNavbarScrollEffect();
     },
 
     // Bind common events
     bindEvents: function() {
         // Handle form submissions
-        $(document).on('submit', '.ajax-form', this.handleAjaxForm);
+        document.addEventListener('submit', this.handleAjaxForm.bind(this));
         
         // Handle notification clicks
-        $(document).on('click', '.notification-item', this.markNotificationAsRead);
-        
-        // Handle modal forms
-        $(document).on('shown.bs.modal', '.modal', this.focusFirstInput);
+        document.addEventListener('click', this.handleNotificationClick.bind(this));
         
         // Handle search functionality
-        $(document).on('input', '.search-input', this.handleSearch);
+        document.addEventListener('input', this.handleSearch.bind(this));
         
         // Handle filter changes
-        $(document).on('change', '.filter-select', this.handleFilter);
+        document.addEventListener('change', this.handleFilter.bind(this));
+
+        // Handle floating action button
+        document.addEventListener('click', this.handleFabClick.bind(this));
+
+        // Handle card hover effects
+        document.addEventListener('mouseenter', this.handleCardHover.bind(this));
+        document.addEventListener('mouseleave', this.handleCardLeave.bind(this));
     },
 
-    // Initialize components
+    // Initialize modern components
     initComponents: function() {
         // Initialize tooltips
         if (typeof bootstrap !== 'undefined') {
-            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            tooltipTriggerList.map(function (tooltipTriggerEl) {
                 return new bootstrap.Tooltip(tooltipTriggerEl);
             });
+
+            // Initialize popovers
+            const popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
+            popoverTriggerList.map(function (popoverTriggerEl) {
+                return new bootstrap.Popover(popoverTriggerEl);
+            });
         }
 
-        // Initialize date pickers
+        // Initialize custom date pickers
         this.initDatePickers();
         
-        // Initialize rich text editors
-        this.initRichTextEditors();
-        
-        // Add animation classes to elements
-        this.addAnimations();
+        // Initialize statistics animations
+        this.initStatsAnimation();
+
+        // Initialize lazy loading for images
+        this.initLazyLoading();
     },
 
-    // Handle AJAX form submissions
-    handleAjaxForm: function(e) {
-        e.preventDefault();
-        const form = $(this);
-        const url = form.attr('action');
-        const method = form.attr('method') || 'POST';
-        const data = form.serialize();
-
-        EventManagement.showLoader();
-
-        $.ajax({
-            url: url,
-            method: method,
-            data: data,
-            success: function(response) {
-                EventManagement.hideLoader();
-                if (response.success) {
-                    EventManagement.showNotification('Success!', response.message, 'success');
-                    if (response.redirect) {
-                        window.location.href = response.redirect;
-                    } else {
-                        form[0].reset();
+    // Initialize animations
+    initAnimations: function() {
+        // Observe elements for scroll animations
+        if ('IntersectionObserver' in window) {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('animate-in');
                     }
-                } else {
-                    EventManagement.showNotification('Error!', response.message, 'error');
-                }
-            },
-            error: function(xhr, status, error) {
-                EventManagement.hideLoader();
-                EventManagement.showNotification('Error!', 'An error occurred. Please try again.', 'error');
-            }
-        });
-    },
+                });
+            }, {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            });
 
-    // Mark notification as read
-    markNotificationAsRead: function() {
-        const notificationId = $(this).data('notification-id');
-        if (notificationId) {
-            $.post('/api/notifications/' + notificationId + '/mark-read', function(response) {
-                if (response.success) {
-                    $('.notification-item[data-notification-id="' + notificationId + '"]')
-                        .removeClass('unread')
-                        .addClass('read');
-                }
+            // Observe elements with animation classes
+            document.querySelectorAll('.fade-in, .slide-in-left, .slide-in-right').forEach(el => {
+                observer.observe(el);
             });
         }
     },
 
-    // Focus first input in modal
-    focusFirstInput: function() {
-        $(this).find('input:text:visible:first').focus();
-    },
+    // Initialize navbar scroll effect
+    initNavbarScrollEffect: function() {
+        let lastScrollTop = 0;
+        window.addEventListener('scroll', () => {
+            const navbar = document.querySelector('.navbar');
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
 
-    // Handle search functionality
-    handleSearch: function() {
-        const searchTerm = $(this).val().toLowerCase();
-        const targetContainer = $(this).data('target');
-        
-        $(targetContainer + ' .searchable-item').each(function() {
-            const text = $(this).text().toLowerCase();
-            if (text.includes(searchTerm)) {
-                $(this).show();
+            if (scrollTop > 100) {
+                navbar.classList.add('navbar-scrolled');
             } else {
-                $(this).hide();
+                navbar.classList.remove('navbar-scrolled');
             }
+
+            lastScrollTop = scrollTop;
         });
     },
 
-    // Handle filter functionality
-    handleFilter: function() {
-        const filterValue = $(this).val();
-        const targetContainer = $(this).data('target');
-        const filterAttribute = $(this).data('filter');
+    // Initialize statistics animation
+    initStatsAnimation: function() {
+        const statNumbers = document.querySelectorAll('.stat-number');
         
-        if (filterValue === 'all') {
-            $(targetContainer + ' .filterable-item').show();
-        } else {
-            $(targetContainer + ' .filterable-item').each(function() {
-                const itemValue = $(this).data(filterAttribute);
-                if (itemValue === filterValue) {
-                    $(this).show();
-                } else {
-                    $(this).hide();
+        const animateNumber = (element) => {
+            const target = parseInt(element.textContent);
+            const duration = 2000;
+            const steps = 60;
+            const increment = target / steps;
+            let current = 0;
+            
+            const timer = setInterval(() => {
+                current += increment;
+                element.textContent = Math.floor(current);
+                
+                if (current >= target) {
+                    element.textContent = target;
+                    clearInterval(timer);
                 }
+            }, duration / steps);
+        };
+
+        // Animate numbers when they come into view
+        if ('IntersectionObserver' in window) {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        animateNumber(entry.target);
+                        observer.unobserve(entry.target);
+                    }
+                });
             });
+
+            statNumbers.forEach(stat => observer.observe(stat));
         }
     },
 
     // Initialize date pickers
     initDatePickers: function() {
-        $('.datepicker').each(function() {
-            // Add date picker functionality if available
-            if (typeof flatpickr !== 'undefined') {
-                flatpickr(this, {
-                    dateFormat: "Y-m-d",
-                    minDate: "today"
-                });
-            }
-        });
-
-        $('.datetimepicker').each(function() {
-            if (typeof flatpickr !== 'undefined') {
-                flatpickr(this, {
-                    enableTime: true,
-                    dateFormat: "Y-m-d H:i",
-                    minDate: "today"
-                });
-            }
+        const dateInputs = document.querySelectorAll('input[type="date"], input[type="datetime-local"]');
+        dateInputs.forEach(input => {
+            input.addEventListener('focus', function() {
+                this.showPicker();
+            });
         });
     },
 
-    // Initialize rich text editors
-    initRichTextEditors: function() {
-        $('.rich-text-editor').each(function() {
-            // Add rich text editor functionality if available
-            if (typeof tinymce !== 'undefined') {
-                tinymce.init({
-                    selector: this,
-                    height: 300,
-                    menubar: false,
-                    plugins: 'link lists',
-                    toolbar: 'bold italic underline | alignleft aligncenter alignright | bullist numlist | link'
+    // Initialize lazy loading
+    initLazyLoading: function() {
+        if ('IntersectionObserver' in window) {
+            const imageObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const img = entry.target;
+                        img.src = img.dataset.src;
+                        img.classList.remove('lazy');
+                        imageObserver.unobserve(img);
+                    }
                 });
-            }
-        });
-    },
+            });
 
-    // Add animations to elements
-    addAnimations: function() {
-        // Add fade-in animation to cards
-        $('.card').addClass('fade-in');
-        
-        // Add slide-in animations based on position
-        $('.slide-left').addClass('slide-in-left');
-        $('.slide-right').addClass('slide-in-right');
-    },
-
-    // Show loading spinner
-    showLoader: function() {
-        if ($('.spinner-overlay').length === 0) {
-            $('body').append(`
-                <div class="spinner-overlay">
-                    <div class="spinner-border text-primary" role="status">
-                        <span class="visually-hidden">Loading...</span>
-                    </div>
-                </div>
-            `);
+            document.querySelectorAll('img[data-src]').forEach(img => {
+                imageObserver.observe(img);
+            });
         }
-        $('.spinner-overlay').show();
     },
 
-    // Hide loading spinner
-    hideLoader: function() {
-        $('.spinner-overlay').hide();
+    // Handle AJAX form submissions
+    handleAjaxForm: function(event) {
+        if (!event.target.classList.contains('ajax-form')) return;
+        
+        event.preventDefault();
+        const form = event.target;
+        const formData = new FormData(form);
+        
+        // Show loading state
+        const submitBtn = form.querySelector('button[type="submit"]');
+        const originalText = submitBtn.innerHTML;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Processing...';
+        submitBtn.disabled = true;
+
+        fetch(form.action, {
+            method: form.method,
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                this.showToast('Success', data.message, 'success');
+                if (data.redirect) {
+                    setTimeout(() => window.location.href = data.redirect, 1000);
+                }
+            } else {
+                this.showToast('Error', data.message, 'error');
+            }
+        })
+        .catch(error => {
+            this.showToast('Error', 'An unexpected error occurred', 'error');
+        })
+        .finally(() => {
+            // Restore button state
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+        });
     },
 
-    // Show notification
-    showNotification: function(title, message, type = 'info') {
-        const alertClass = 'alert-' + (type === 'error' ? 'danger' : type);
-        const notification = `
-            <div class="alert ${alertClass} alert-dismissible fade show position-fixed" 
-                 style="top: 20px; right: 20px; z-index: 10000; min-width: 300px;">
-                <strong>${title}</strong> ${message}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        `;
+    // Handle notification clicks
+    handleNotificationClick: function(event) {
+        const notificationItem = event.target.closest('.notification-item');
+        if (!notificationItem) return;
+
+        if (notificationItem.classList.contains('unread')) {
+            this.markNotificationAsRead(notificationItem);
+        }
+    },
+
+    // Handle card hover effects
+    handleCardHover: function(event) {
+        const card = event.target.closest('.card, .stat-card, .event-card, .club-card');
+        if (!card) return;
+
+        card.style.transform = 'translateY(-8px) scale(1.02)';
+    },
+
+    handleCardLeave: function(event) {
+        const card = event.target.closest('.card, .stat-card, .event-card, .club-card');
+        if (!card) return;
+
+        card.style.transform = '';
+    },
+
+    // Handle floating action button
+    handleFabClick: function(event) {
+        const fab = event.target.closest('.fab');
+        if (!fab) return;
+
+        event.preventDefault();
         
-        $('body').append(notification);
+        // Add animation
+        fab.style.transform = 'scale(1.2)';
+        setTimeout(() => fab.style.transform = '', 150);
+
+        // Show quick actions modal or menu
+        this.showQuickActions();
+    },
+
+    // Show quick actions
+    showQuickActions: function() {
+        // This could show a modal with quick actions like:
+        // - Create Event
+        // - Join Club
+        // - View Calendar
+        // For now, just show a simple alert
+        this.showToast('Quick Actions', 'Feature coming soon!', 'info');
+    },
+
+    // Handle search functionality
+    handleSearch: function(event) {
+        if (!event.target.classList.contains('search-input')) return;
+
+        const searchTerm = event.target.value.toLowerCase();
+        const searchables = document.querySelectorAll('.searchable');
+
+        searchables.forEach(item => {
+            const text = item.textContent.toLowerCase();
+            const isVisible = text.includes(searchTerm);
+            
+            item.style.display = isVisible ? '' : 'none';
+            
+            // Add animation
+            if (isVisible) {
+                item.classList.add('fade-in');
+            }
+        });
+    },
+
+    // Handle filter changes
+    handleFilter: function(event) {
+        if (!event.target.classList.contains('filter-select')) return;
+
+        const filterValue = event.target.value;
+        const filterTarget = event.target.dataset.target;
+        const items = document.querySelectorAll(filterTarget);
+
+        items.forEach(item => {
+            const shouldShow = !filterValue || item.dataset.category === filterValue;
+            item.style.display = shouldShow ? '' : 'none';
+            
+            if (shouldShow) {
+                item.classList.add('fade-in');
+            }
+        });
+    },
+
+    // Mark notification as read
+    markNotificationAsRead: function(notificationElement) {
+        const notificationId = notificationElement.dataset.id;
         
-        // Auto-remove after 5 seconds
-        setTimeout(function() {
-            $('.alert').alert('close');
-        }, 5000);
+        fetch(`${this.config.apiEndpoint}/notifications/${notificationId}/read`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                notificationElement.classList.remove('unread');
+                this.updateNotificationCount();
+            }
+        })
+        .catch(error => console.error('Error marking notification as read:', error));
     },
 
     // Load notifications
     loadNotifications: function() {
-        // Load and display recent notifications
-        $.get('/api/notifications/recent', function(notifications) {
-            if (notifications && notifications.length > 0) {
-                EventManagement.updateNotificationBadge(notifications.length);
-                EventManagement.populateNotificationDropdown(notifications);
-            }
-        });
+        const notificationContainer = document.querySelector('.notification-container');
+        if (!notificationContainer) return;
+
+        fetch(`${this.config.apiEndpoint}/notifications`)
+            .then(response => response.json())
+            .then(data => {
+                this.renderNotifications(data.notifications);
+                this.updateNotificationCount(data.unreadCount);
+            })
+            .catch(error => console.error('Error loading notifications:', error));
     },
 
-    // Update notification badge
-    updateNotificationBadge: function(count) {
-        const badge = $('.notification-badge');
-        if (count > 0) {
-            badge.text(count).show();
-        } else {
-            badge.hide();
-        }
-    },
+    // Render notifications
+    renderNotifications: function(notifications) {
+        const container = document.querySelector('.notification-container');
+        if (!container) return;
 
-    // Populate notification dropdown
-    populateNotificationDropdown: function(notifications) {
-        const dropdown = $('.notification-dropdown');
-        dropdown.empty();
-        
-        notifications.forEach(function(notification) {
-            const item = `
-                <div class="notification-item p-3 border-bottom" data-notification-id="${notification.id}">
-                    <h6 class="mb-1">${notification.title}</h6>
-                    <p class="mb-1 text-muted small">${notification.message}</p>
-                    <small class="text-muted">${EventManagement.formatDate(notification.dateSent)}</small>
+        container.innerHTML = notifications.map(notification => `
+            <div class="notification-item ${notification.read ? '' : 'unread'}" data-id="${notification.id}">
+                <div class="d-flex">
+                    <div class="me-3">
+                        <i class="fas ${this.getNotificationIcon(notification.type)}"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <h6 class="mb-1">${notification.title}</h6>
+                        <p class="mb-1">${notification.message}</p>
+                        <small class="text-muted">${this.formatTime(notification.created_at)}</small>
+                    </div>
                 </div>
-            `;
-            dropdown.append(item);
-        });
+            </div>
+        `).join('');
     },
 
-    // Format date
-    formatDate: function(dateString) {
-        const date = new Date(dateString);
-        const now = new Date();
-        const diffInMinutes = Math.floor((now - date) / (1000 * 60));
-        
-        if (diffInMinutes < 1) return 'Just now';
-        if (diffInMinutes < 60) return `${diffInMinutes} minutes ago`;
-        if (diffInMinutes < 1440) return `${Math.floor(diffInMinutes / 60)} hours ago`;
-        if (diffInMinutes < 10080) return `${Math.floor(diffInMinutes / 1440)} days ago`;
-        
-        return date.toLocaleDateString();
-    },
-
-    // Confirm action
-    confirmAction: function(message, callback) {
-        if (confirm(message)) {
-            callback();
+    // Update notification count
+    updateNotificationCount: function(count) {
+        const badge = document.querySelector('.notification-badge');
+        if (badge) {
+            badge.textContent = count || 0;
+            badge.style.display = count > 0 ? '' : 'none';
         }
     },
 
-    // Event registration functionality
-    registerForEvent: function(eventId, callback) {
-        $.post('/api/events/' + eventId + '/register', function(response) {
-            if (response.success) {
-                EventManagement.showNotification('Success!', 'Successfully registered for the event!', 'success');
-                if (callback) callback(response);
-            } else {
-                EventManagement.showNotification('Error!', response.message, 'error');
-            }
+    // Get notification icon based on type
+    getNotificationIcon: function(type) {
+        const icons = {
+            'event': 'fa-calendar-alt',
+            'club': 'fa-users',
+            'announcement': 'fa-bullhorn',
+            'reminder': 'fa-bell'
+        };
+        return icons[type] || 'fa-info-circle';
+    },
+
+    // Format time for display
+    formatTime: function(timestamp) {
+        const now = new Date();
+        const time = new Date(timestamp);
+        const diff = now - time;
+        
+        if (diff < 60000) return 'Just now';
+        if (diff < 3600000) return `${Math.floor(diff / 60000)}m ago`;
+        if (diff < 86400000) return `${Math.floor(diff / 3600000)}h ago`;
+        return `${Math.floor(diff / 86400000)}d ago`;
+    },
+
+    // Show modern toast notifications
+    showToast: function(title, message, type = 'info') {
+        const toastContainer = this.getToastContainer();
+        const toastId = 'toast-' + Date.now();
+        
+        const toastHtml = `
+            <div id="${toastId}" class="toast align-items-center text-white bg-${this.getToastColor(type)} border-0" role="alert">
+                <div class="d-flex">
+                    <div class="toast-body">
+                        <strong><i class="fas ${this.getToastIcon(type)} me-2"></i>${title}</strong><br>
+                        ${message}
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                </div>
+            </div>
+        `;
+        
+        toastContainer.insertAdjacentHTML('beforeend', toastHtml);
+        
+        const toastElement = document.getElementById(toastId);
+        const toast = new bootstrap.Toast(toastElement, {
+            autohide: true,
+            delay: 5000
+        });
+        
+        toast.show();
+        
+        // Remove toast element after it's hidden
+        toastElement.addEventListener('hidden.bs.toast', () => {
+            toastElement.remove();
         });
     },
 
-    // Event unregistration functionality
-    unregisterFromEvent: function(eventId, callback) {
-        EventManagement.confirmAction('Are you sure you want to unregister from this event?', function() {
-            $.ajax({
-                url: '/api/events/' + eventId + '/unregister',
-                method: 'DELETE',
-                success: function(response) {
-                    if (response.success) {
-                        EventManagement.showNotification('Success!', 'Successfully unregistered from the event!', 'success');
-                        if (callback) callback(response);
-                    } else {
-                        EventManagement.showNotification('Error!', response.message, 'error');
-                    }
-                }
-            });
-        });
+    // Get or create toast container
+    getToastContainer: function() {
+        let container = document.querySelector('.toast-container');
+        if (!container) {
+            container = document.createElement('div');
+            container.className = 'toast-container position-fixed top-0 end-0 p-3';
+            document.body.appendChild(container);
+        }
+        return container;
     },
 
-    // Join club functionality
-    joinClub: function(clubId, callback) {
-        $.post('/api/clubs/' + clubId + '/join', function(response) {
-            if (response.success) {
-                EventManagement.showNotification('Success!', 'Successfully joined the club!', 'success');
-                if (callback) callback(response);
-            } else {
-                EventManagement.showNotification('Error!', response.message, 'error');
-            }
-        });
+    // Get toast color based on type
+    getToastColor: function(type) {
+        const colors = {
+            'success': 'success',
+            'error': 'danger',
+            'warning': 'warning',
+            'info': 'primary'
+        };
+        return colors[type] || 'primary';
     },
 
-    // Leave club functionality
-    leaveClub: function(clubId, callback) {
-        EventManagement.confirmAction('Are you sure you want to leave this club?', function() {
-            $.ajax({
-                url: '/api/clubs/' + clubId + '/leave',
-                method: 'DELETE',
-                success: function(response) {
-                    if (response.success) {
-                        EventManagement.showNotification('Success!', 'Successfully left the club!', 'success');
-                        if (callback) callback(response);
-                    } else {
-                        EventManagement.showNotification('Error!', response.message, 'error');
-                    }
-                }
-            });
+    // Get toast icon based on type
+    getToastIcon: function(type) {
+        const icons = {
+            'success': 'fa-check-circle',
+            'error': 'fa-exclamation-circle',
+            'warning': 'fa-exclamation-triangle',
+            'info': 'fa-info-circle'
+        };
+        return icons[type] || 'fa-info-circle';
+    },
+
+    // Utility function for debouncing
+    debounce: function(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    },
+
+    // Smooth scroll to element
+    scrollTo: function(element, offset = 0) {
+        const target = typeof element === 'string' ? document.querySelector(element) : element;
+        if (!target) return;
+
+        const targetPosition = target.offsetTop - offset;
+        window.scrollTo({
+            top: targetPosition,
+            behavior: 'smooth'
         });
     }
 };
 
-// Initialize the application when document is ready
-$(document).ready(function() {
-    EventManagement.init();
+// Initialize when DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
+    EventHub.init();
 });
 
-// Export for global access
-window.EventManagement = EventManagement;
+// Global utility functions
+window.EventHub = EventHub;
+
+// Export for modules
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = EventHub;
+}
