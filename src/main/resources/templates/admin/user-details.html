@@ -9,16 +9,29 @@
     <link href="/css/style.css" rel="stylesheet">
     <style>
         .user-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--primary-gradient);
             color: white;
             padding: 2rem 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .user-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--bg-pattern);
+            opacity: 0.1;
         }
         
         .user-avatar-large {
             width: 120px;
             height: 120px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            background: var(--primary-gradient);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -29,9 +42,11 @@
         }
         
         .info-card {
-            border: none;
-            border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-lg);
             margin-bottom: 2rem;
         }
         
@@ -65,36 +80,36 @@
 </head>
 <body>
     <!-- Include Navigation -->
-    <div th:replace="layout :: header"></div>
+    <div th:replace="~{layout :: header}"></div>
 
     <!-- User Header -->
-    <section class="user-header">
-        <div class="container">
+    <section class="user-header main-content">
+        <div class="container mt-5 pt-5">
             <div class="row align-items-center">
                 <div class="col-md-2 text-center">
                     <div class="user-avatar-large mx-auto" th:text="${#strings.substring(user.name, 0, 1).toUpperCase()}">A</div>
                 </div>
                 <div class="col-md-7">
-                    <h1 class="mb-0" th:text="${user.name}">User Name</h1>
-                    <p class="mb-2" th:text="${user.email}">user@example.com</p>
+                    <h1 class="mb-0 text-white" th:text="${user.name}">User Name</h1>
+                    <p class="mb-2 text-white-75" th:text="${user.email}">user@example.com</p>
                     <div class="d-flex align-items-center">
                         <span class="badge role-badge me-3"
-                              th:classappend="${user.role.name() == 'ADMIN'} ? 'bg-danger' : 
-                                            (${user.role.name() == 'CLUB_HEAD'} ? 'bg-warning' : 'bg-success')"
+                              th:classappend="${user.role.name() == 'ADMIN'} ? 'bg-danger fw-bold' : 
+                                            (${user.role.name() == 'CLUB_HEAD'} ? 'bg-warning text-dark fw-bold' : 'bg-success fw-bold')"
                               th:text="${user.role}">STUDENT</span>
-                        <span th:if="${user.isActive}" class="text-light">
+                        <span th:if="${user.isActive}" class="text-white">
                             <span class="status-indicator bg-success"></span>Active
                         </span>
-                        <span th:unless="${user.isActive}" class="text-light">
+                        <span th:unless="${user.isActive}" class="text-white">
                             <span class="status-indicator bg-danger"></span>Inactive
                         </span>
                     </div>
                 </div>
                 <div class="col-md-3 text-end">
-                    <a th:href="@{'/admin/users/' + ${user.userId} + '/edit'}" class="btn btn-light btn-lg me-2">
+                    <a th:href="@{'/admin/users/' + ${user.userId} + '/edit'}" class="btn btn-light btn-lg me-2 fw-semibold">
                         <i class="fas fa-edit me-2"></i>Edit User
                     </a>
-                    <a href="/admin/users" class="btn btn-outline-light btn-lg">
+                    <a href="/admin/users" class="btn btn-outline-light btn-lg fw-semibold">
                         <i class="fas fa-arrow-left me-2"></i>Back
                     </a>
                 </div>
@@ -120,56 +135,56 @@
             <!-- User Information -->
             <div class="col-md-4">
                 <div class="card info-card">
-                    <div class="card-header">
-                        <h5 class="card-title mb-0">
-                            <i class="fas fa-user me-2"></i>User Information
+                    <div class="card-header bg-light">
+                        <h5 class="card-title mb-0 text-dark fw-bold">
+                            <i class="fas fa-user me-2 text-primary"></i>User Information
                         </h5>
                     </div>
                     <div class="card-body">
                         <div class="mb-3">
-                            <label class="form-label text-muted">Full Name</label>
-                            <p class="fw-bold" th:text="${user.name}">User Name</p>
+                            <label class="form-label text-secondary">Full Name</label>
+                            <p class="fw-semibold text-dark" th:text="${user.name}">User Name</p>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label text-muted">Email Address</label>
-                            <p class="fw-bold" th:text="${user.email}">user@example.com</p>
+                            <label class="form-label text-secondary">Email Address</label>
+                            <p class="fw-semibold text-dark" th:text="${user.email}">user@example.com</p>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label text-muted">Role</label>
+                            <label class="form-label text-secondary">Role</label>
                             <p>
-                                <span class="badge role-badge"
+                                <span class="badge role-badge fw-semibold"
                                       th:classappend="${user.role.name() == 'ADMIN'} ? 'bg-danger' : 
-                                                    (${user.role.name() == 'CLUB_HEAD'} ? 'bg-warning' : 'bg-success')"
+                                                    (${user.role.name() == 'CLUB_HEAD'} ? 'bg-warning text-dark' : 'bg-success')"
                                       th:text="${user.role}">STUDENT</span>
                             </p>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label text-muted">Department</label>
-                            <p class="fw-bold" th:text="${user.department ?: 'Not specified'}">Computer Science</p>
+                            <label class="form-label text-secondary">Department</label>
+                            <p class="fw-semibold text-dark" th:text="${user.department ?: 'Not specified'}">Computer Science</p>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label text-muted">Status</label>
+                            <label class="form-label text-secondary">Status</label>
                             <p>
-                                <span th:if="${user.isActive}" class="text-success">
+                                <span th:if="${user.isActive}" class="text-success fw-semibold">
                                     <span class="status-indicator bg-success"></span>Active
                                 </span>
-                                <span th:unless="${user.isActive}" class="text-danger">
+                                <span th:unless="${user.isActive}" class="text-danger fw-semibold">
                                     <span class="status-indicator bg-danger"></span>Inactive
                                 </span>
                             </p>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label text-muted">Member Since</label>
-                            <p class="fw-bold" th:text="${#temporals.format(user.createdAt, 'MMMM dd, yyyy')}">January 01, 2024</p>
+                            <label class="form-label text-secondary">Member Since</label>
+                            <p class="fw-semibold text-dark" th:text="${#temporals.format(user.createdAt, 'MMMM dd, yyyy')}">January 01, 2024</p>
                         </div>
                     </div>
                 </div>
 
                 <!-- Quick Actions -->
                 <div class="card info-card">
-                    <div class="card-header">
-                        <h5 class="card-title mb-0">
-                            <i class="fas fa-cogs me-2"></i>Quick Actions
+                    <div class="card-header bg-light">
+                        <h5 class="card-title mb-0 text-dark fw-bold">
+                            <i class="fas fa-cogs me-2 text-primary"></i>Quick Actions
                         </h5>
                     </div>
                     <div class="card-body">
@@ -204,10 +219,10 @@
             <div class="col-md-8">
                 <!-- Club Memberships -->
                 <div class="card info-card">
-                    <div class="card-header">
-                        <h5 class="card-title mb-0">
-                            <i class="fas fa-users me-2"></i>Club Memberships
-                            <span class="badge bg-primary ms-2" th:text="${#lists.size(userClubs)}">0</span>
+                    <div class="card-header bg-light">
+                        <h5 class="card-title mb-0 text-dark fw-bold">
+                            <i class="fas fa-users me-2 text-primary"></i>Club Memberships
+                            <span class="badge bg-primary ms-2 fw-semibold" th:text="${#lists.size(userClubs)}">0</span>
                         </h5>
                     </div>
                     <div class="card-body">
@@ -218,8 +233,8 @@
                         <div th:each="club : ${userClubs}" class="activity-item club">
                             <div class="d-flex justify-content-between align-items-start">
                                 <div>
-                                    <h6 class="mb-1" th:text="${club.clubName}">Club Name</h6>
-                                    <p class="text-muted mb-0" th:text="${club.description}">Club description</p>
+                                    <h6 class="mb-1 fw-semibold text-dark" th:text="${club.clubName}">Club Name</h6>
+                                    <p class="text-secondary mb-0" th:text="${club.description}">Club description</p>
                                 </div>
                                 <a th:href="@{'/clubs/' + ${club.clubId}}" class="btn btn-sm btn-outline-primary">
                                     <i class="fas fa-eye"></i>
@@ -231,10 +246,10 @@
 
                 <!-- Managed Clubs (if Club Head) -->
                 <div th:if="${user.role.name() == 'CLUB_HEAD' and managedClubs != null}" class="card info-card">
-                    <div class="card-header">
-                        <h5 class="card-title mb-0">
-                            <i class="fas fa-crown me-2"></i>Managed Clubs
-                            <span class="badge bg-warning ms-2" th:text="${#lists.size(managedClubs)}">0</span>
+                    <div class="card-header bg-light">
+                        <h5 class="card-title mb-0 text-dark fw-bold">
+                            <i class="fas fa-crown me-2 text-warning"></i>Managed Clubs
+                            <span class="badge bg-warning text-dark ms-2 fw-semibold" th:text="${#lists.size(managedClubs)}">0</span>
                         </h5>
                     </div>
                     <div class="card-body">
@@ -245,9 +260,9 @@
                         <div th:each="club : ${managedClubs}" class="activity-item club">
                             <div class="d-flex justify-content-between align-items-start">
                                 <div>
-                                    <h6 class="mb-1" th:text="${club.clubName}">Club Name</h6>
-                                    <p class="text-muted mb-1" th:text="${club.description}">Club description</p>
-                                    <small class="text-success">
+                                    <h6 class="mb-1 fw-semibold text-dark" th:text="${club.clubName}">Club Name</h6>
+                                    <p class="text-secondary mb-1" th:text="${club.description}">Club description</p>
+                                    <small class="text-success fw-semibold">
                                         <i class="fas fa-user-friends me-1"></i>
                                         <span th:text="${club.memberCount ?: 0}">0</span> members
                                     </small>
@@ -267,10 +282,10 @@
 
                 <!-- Event Registrations -->
                 <div class="card info-card">
-                    <div class="card-header">
-                        <h5 class="card-title mb-0">
-                            <i class="fas fa-calendar-check me-2"></i>Event Registrations
-                            <span class="badge bg-success ms-2" th:text="${#lists.size(userEvents)}">0</span>
+                    <div class="card-header bg-light">
+                        <h5 class="card-title mb-0 text-dark fw-bold">
+                            <i class="fas fa-calendar-check me-2 text-success"></i>Event Registrations
+                            <span class="badge bg-success ms-2 fw-semibold" th:text="${#lists.size(userEvents)}">0</span>
                         </h5>
                     </div>
                     <div class="card-body">
@@ -281,13 +296,17 @@
                         <div th:each="registration : ${userEvents}" class="activity-item event">
                             <div class="d-flex justify-content-between align-items-start">
                                 <div>
-                                    <h6 class="mb-1" th:text="${registration.event.eventName}">Event Name</h6>
-                                    <p class="text-muted mb-1" th:text="${registration.event.description}">Event description</p>
-                                    <small class="text-muted">
+                                    <h6 class="mb-1 fw-semibold text-dark" th:text="${registration.event.eventName}">Event Name</h6>
+                                    <p class="text-secondary mb-1" th:text="${registration.event.description}">Event description</p>
+                                    <small class="text-secondary fw-medium">
                                         <i class="fas fa-calendar me-1"></i>
                                         <span th:text="${#temporals.format(registration.event.eventDate, 'MMM dd, yyyy')}">Jan 01, 2024</span>
                                     </small>
-                                    <span class="badge bg-info ms-2" th:text="${registration.registrationStatus}">CONFIRMED</span>
+                                    <span class="badge" 
+                                          th:classappend="${registration.status == 'CONFIRMED'} ? 'bg-success' : 
+                                                         (${registration.status == 'PENDING'} ? 'bg-warning' : 
+                                                         (${registration.status == 'CANCELLED'} ? 'bg-danger' : 'bg-info'))"
+                                          th:text="${registration.status}">CONFIRMED</span>
                                 </div>
                                 <a th:href="@{'/events/' + ${registration.event.eventId}}" class="btn btn-sm btn-outline-primary">
                                     <i class="fas fa-eye"></i>

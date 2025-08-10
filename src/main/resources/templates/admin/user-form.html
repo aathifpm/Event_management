@@ -9,15 +9,17 @@
     <link href="/css/style.css" rel="stylesheet">
     <style>
         .form-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--primary-gradient);
             color: white;
             padding: 2rem 0;
         }
         
         .form-card {
-            border: none;
-            border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-lg);
         }
         
         .form-group {
@@ -25,7 +27,7 @@
         }
         
         .required {
-            color: #dc3545;
+            color: var(--danger);
         }
         
         .password-toggle {
@@ -34,7 +36,7 @@
             right: 10px;
             top: 50%;
             transform: translateY(-50%);
-            color: #6c757d;
+            color: var(--text-muted);
         }
         
         .position-relative {
@@ -43,12 +45,11 @@
     </style>
 </head>
 <body>
-    <!-- Include Navigation -->
-    <div th:replace="layout :: header"></div>
+    <div th:replace="~{layout :: header}"></div>
 
     <!-- Form Header -->
-    <section class="form-header">
-        <div class="container">
+    <section class="form-header main-content">
+        <div class="container mt-5 pt-5">
             <div class="row align-items-center">
                 <div class="col-md-8">
                     <h1 class="mb-0">
