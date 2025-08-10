@@ -1,6 +1,6 @@
 HELP.md
 target/
-# !.mvn/wrapper/maven-wrapper.jar
+!.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
 
@@ -60,8 +60,9 @@ ehthumbs.db
 Thumbs.db
 
 ### Maven ###
-.mvn/wrapper/maven-wrapper.properties
-.mvn/wrapper/maven-wrapper.jar
+# Allow Maven wrapper files
+!.mvn/wrapper/maven-wrapper.properties
+!.mvn/wrapper/maven-wrapper.jar
 
 ### Spring Boot ###
 application-local.properties

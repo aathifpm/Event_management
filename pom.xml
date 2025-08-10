@@ -143,4 +143,42 @@
             </plugin>
         </plugins>
     </build>
+    
+    <profiles>
+        <!-- Profile for Docker builds that skips toolchain plugin -->
+        <profile>
+            <id>docker</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.springframework.boot</groupId>
+                        <artifactId>spring-boot-maven-plugin</artifactId>
+                        <configuration>
+                            <excludes>
+                                <exclude>
+                                    <groupId>org.springframework.boot</groupId>
+                                    <artifactId>spring-boot-devtools</artifactId>
+                                </exclude>
+                            </excludes>
+                        </configuration>
+                    </plugin>
+                    
+                    <!-- Maven Compiler Plugin with explicit Java 21 configuration -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-compiler-plugin</artifactId>
+                        <version>3.11.0</version>
+                        <configuration>
+                            <source>21</source>
+                            <target>21</target>
+                            <compilerArgs>
+                                <arg>--enable-preview</arg>
+                            </compilerArgs>
+                        </configuration>
+                    </plugin>
+                    <!-- Note: toolchain plugin is NOT included in docker profile -->
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>
