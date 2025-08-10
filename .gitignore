@@ -60,9 +60,8 @@ ehthumbs.db
 Thumbs.db
 
 ### Maven ###
-# Allow Maven wrapper files for Docker builds
-# .mvn/wrapper/maven-wrapper.properties
-# .mvn/wrapper/maven-wrapper.jar
+.mvn/wrapper/maven-wrapper.properties
+.mvn/wrapper/maven-wrapper.jar
 
 ### Spring Boot ###
 application-local.properties

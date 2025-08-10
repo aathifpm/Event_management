@@ -13,13 +13,13 @@ COPY mvnw pom.xml ./
 RUN chmod +x ./mvnw
 
 # Download dependencies (this step is cached if pom.xml doesn't change)
-RUN ./mvnw dependency:go-offline -B
+RUN ./mvnw dependency:go-offline -B -Dmaven.toolchain.skip=true
 
 # Copy the source code
 COPY src ./src
 
-# Build the application
-RUN ./mvnw clean package -DskipTests
+# Build the application (skip toolchains plugin for Docker build)
+RUN ./mvnw clean package -DskipTests -Dmaven.toolchain.skip=true
 
 # Runtime stage
 FROM eclipse-temurin:21-jre-alpine
