@@ -3,19 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Events - College Event Management</title>
+    <title>Events - Event Hub</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link th:href="@{/css/style.css}" rel="stylesheet">
 </head>
 <body>
     <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <nav class="navbar navbar-expand-lg fixed-top">
         <div class="container">
             <a class="navbar-brand" th:href="@{/}">
                 <i class="fas fa-graduation-cap me-2"></i>
-                College Events
-            </a>
+                Event Hub            </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -57,20 +56,20 @@
     </nav>
 
     <!-- Main Content -->
-    <div class="container mt-4">
+    <div class="container main-content">
         <div class="row">
             <div class="col-12">
                 <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h1><i class="fas fa-calendar-alt"></i> Events</h1>
+                    <h1 class="fade-in"><i class="fas fa-calendar-alt"></i> Events</h1>
                     <!-- Role-based message -->
                     <div class="text-end">
-                        <span th:if="${isAdmin}" class="badge bg-danger fs-6">
+                        <span th:if="${isAdmin}" class="badge" style="background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%); color: white; font-size: 0.875rem; padding: 0.5rem 1rem; border-radius: var(--radius-md);">
                             <i class="fas fa-shield-alt"></i> Admin View
                         </span>
-                        <span th:if="${isClubHead}" class="badge bg-warning text-dark fs-6">
+                        <span th:if="${isClubHead}" class="badge" style="background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%); color: white; font-size: 0.875rem; padding: 0.5rem 1rem; border-radius: var(--radius-md);">
                             <i class="fas fa-crown"></i> Club Head View
                         </span>
-                        <span th:if="${isStudent}" class="badge bg-success fs-6">
+                        <span th:if="${isStudent}" class="badge" style="background: linear-gradient(135deg, #48bb78 0%, #38a169 100%); color: white; font-size: 0.875rem; padding: 0.5rem 1rem; border-radius: var(--radius-md);">
                             <i class="fas fa-graduation-cap"></i> Student View
                         </span>
                     </div>
@@ -85,7 +84,7 @@
                     <div class="input-group">
                         <input type="text" class="form-control" name="search" 
                                th:value="${searchTerm}" placeholder="Search events...">
-                        <button class="btn btn-outline-secondary" type="submit">
+                        <button class="btn btn-primary" type="submit">
                             <i class="fas fa-search"></i>
                         </button>
                     </div>
@@ -97,7 +96,7 @@
                         <i class="fas fa-list"></i> All Events
                     </a>
                     <!-- Admin-only: Create Event button -->
-                    <a th:if="${isAdmin}" th:href="@{/events/create}" class="btn btn-success">
+                    <a th:if="${isAdmin}" th:href="@{/events/create}" class="btn btn-gradient">
                         <i class="fas fa-plus"></i> Create Event
                     </a>
                     <!-- Club Head-only: Create Event for their club -->
@@ -111,27 +110,27 @@
         <!-- Admin Panel -->
         <div th:if="${isAdmin}" class="row mb-4">
             <div class="col-12">
-                <div class="card border-danger">
-                    <div class="card-header bg-danger text-white">
+                <div class="dashboard-card">
+                    <div class="dashboard-header">
                         <h6 class="mb-0"><i class="fas fa-shield-alt me-2"></i>Admin Panel</h6>
                     </div>
                     <div class="card-body">
                         <div class="row">
                             <div class="col-md-3">
-                                <div class="text-center">
-                                    <h5 class="text-danger" th:text="${#lists.size(events)}">0</h5>
-                                    <small>Total Events</small>
+                                <div class="stat-card border-0 shadow-none p-0">
+                                    <span class="stat-number" th:text="${#lists.size(events)}">0</span>
+                                    <div class="stat-label">Total Events</div>
                                 </div>
                             </div>
                             <div class="col-md-9">
                                 <div class="d-flex gap-2">
-                                    <a th:href="@{/admin/events/analytics}" class="btn btn-sm btn-outline-danger">
+                                    <a th:href="@{/admin/events/analytics}" class="btn btn-sm btn-outline-primary">
                                         <i class="fas fa-chart-bar me-1"></i>Event Analytics
                                     </a>
-                                    <a th:href="@{/admin/events/settings}" class="btn btn-sm btn-outline-danger">
+                                    <a th:href="@{/admin/events/settings}" class="btn btn-sm btn-outline-primary">
                                         <i class="fas fa-cog me-1"></i>Event Settings
                                     </a>
-                                    <a th:href="@{/admin/events/export}" class="btn btn-sm btn-outline-danger">
+                                    <a th:href="@{/admin/events/export}" class="btn btn-sm btn-outline-primary">
                                         <i class="fas fa-download me-1"></i>Export Events
                                     </a>
                                 </div>
@@ -145,16 +144,14 @@
         <!-- Club Head Panel -->
         <div th:if="${isClubHead}" class="row mb-4">
             <div class="col-12">
-                <div class="card border-warning">
-                    <div class="card-header bg-warning text-dark">
-                        <h6 class="mb-0"><i class="fas fa-crown me-2"></i>Club Head Dashboard</h6>
-                    </div>
-                    <div class="card-body">
+                <div class="glass-card">
+                    <div class="card-body" style="background: linear-gradient(135deg, rgba(237, 137, 54, 0.1) 0%, rgba(221, 107, 32, 0.1) 100%); border-radius: var(--radius-xl);">
+                        <h6 class="mb-3" style="color: var(--text-primary); font-weight: 600;"><i class="fas fa-crown me-2" style="color: #ed8936;"></i>Club Head Dashboard</h6>
                         <div class="row" th:if="${userClubs != null and not #lists.isEmpty(userClubs)}">
                             <div class="col-md-12">
-                                <h6>Your Clubs:</h6>
+                                <h6 style="color: var(--text-secondary); margin-bottom: 1rem;">Your Clubs:</h6>
                                 <div class="d-flex gap-2 flex-wrap">
-                                    <span th:each="club : ${userClubs}" class="badge bg-warning text-dark">
+                                    <span th:each="club : ${userClubs}" class="badge" style="background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%); color: white; padding: 0.5rem 1rem; border-radius: var(--radius-md);">
                                         <i class="fas fa-users me-1"></i>
                                         <span th:text="${club.clubName}">Club Name</span>
                                     </span>
@@ -177,107 +174,110 @@
             </div>
             
             <div th:each="event : ${events}" class="col-md-6 col-lg-4 mb-4">
-                <div class="card h-100">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <h5 class="card-title mb-0" th:text="${event.eventName}">Event Name</h5>
-                        <span class="badge bg-primary" th:text="${event.eventStatus}">Status</span>
+                <div class="event-card">
+                    <div class="event-date">
+                        <span class="day" th:text="${#temporals.format(event.eventDate, 'dd')}">15</span>
+                        <span class="month" th:text="${#temporals.format(event.eventDate, 'MMM')}">Dec</span>
                     </div>
-                    <div class="card-body">
-                        <p class="card-text" th:text="${event.description}">Event Description</p>
-                        
-                        <div class="mb-2">
-                            <small class="text-muted">
-                                <i class="fas fa-users"></i> <span th:text="${event.club.clubName}">Club Name</span>
-                            </small>
+                    <div class="card-body p-4">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <h5 class="card-title mb-0" th:text="${event.eventName}" style="color: #1a202c; font-weight: 600;">Event Name</h5>
+                            <span class="badge" th:text="${event.eventStatus}" 
+                                  style="background: var(--primary-gradient); color: white; padding: 0.375rem 0.75rem; border-radius: var(--radius-md); font-size: 0.75rem;">Status</span>
                         </div>
                         
-                        <div class="mb-2">
-                            <small class="text-muted">
-                                <i class="fas fa-calendar"></i> 
-                                <span th:text="${#temporals.format(event.eventDate, 'MMM dd, yyyy HH:mm')}">Event Date</span>
-                            </small>
-                        </div>
+                        <p class="card-text mb-3" th:text="${event.description}" style="color: #4a5568; line-height: 1.6; font-size: 0.95rem;">Event Description</p>
                         
-                        <div class="mb-2">
-                            <small class="text-muted">
-                                <i class="fas fa-map-marker-alt"></i> <span th:text="${event.venue}">Venue</span>
-                            </small>
-                        </div>
-                        
-                        <div class="mb-2" th:if="${event.maxParticipants}">
-                            <small class="text-muted">
-                                <i class="fas fa-user-friends"></i> 
-                                <span th:with="registeredCount=${@eventService.getRegisteredCount(event)}, remainingSpots=${@eventService.getRemainingSpots(event)}">
+                        <div class="event-details">
+                            <div class="mb-2">
+                                <i class="fas fa-users me-2" style="color: #667eea; width: 16px;"></i>
+                                <span style="color: #2d3748; font-weight: 500;" th:text="${event.club.clubName}">Club Name</span>
+                            </div>
+                            
+                            <div class="mb-2">
+                                <i class="fas fa-clock me-2" style="color: #667eea; width: 16px;"></i>
+                                <span style="color: #2d3748; font-weight: 500;" th:text="${#temporals.format(event.eventDate, 'HH:mm')}">Event Time</span>
+                            </div>
+                            
+                            <div class="mb-2">
+                                <i class="fas fa-map-marker-alt me-2" style="color: #667eea; width: 16px;"></i>
+                                <span style="color: #2d3748; font-weight: 500;" th:text="${event.venue}">Venue</span>
+                            </div>
+                            
+                            <div class="mb-3" th:if="${event.maxParticipants}">
+                                <i class="fas fa-user-friends me-2" style="color: #667eea; width: 16px;"></i>
+                                <span style="color: #2d3748; font-weight: 500;" th:with="registeredCount=${@eventService.getRegisteredCount(event)}, remainingSpots=${@eventService.getRemainingSpots(event)}">
                                     <span th:text="${registeredCount}">0</span> registered
                                     <span th:if="${remainingSpots >= 0}">
                                         / <span th:text="${event.maxParticipants}">0</span> spots
-                                        (<span th:text="${remainingSpots}">0</span> remaining)
+                                        (<span th:text="${remainingSpots}" style="color: #48bb78; font-weight: 600;">0</span> remaining)
                                     </span>
                                 </span>
-                            </small>
+                            </div>
                         </div>
                     </div>
-                    <div class="card-footer">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <small class="text-muted">
-                                <i class="fas fa-clock"></i> 
-                                <span th:text="${#temporals.format(event.createdAt, 'MMM dd')}">Created</span>
+                    <div class="card-footer bg-transparent border-0 p-4 pt-0">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <small style="color: #718096; font-size: 0.875rem;">
+                                <i class="fas fa-calendar-plus me-1"></i>
+                                Created <span th:text="${#temporals.format(event.createdAt, 'MMM dd')}">Dec 01</span>
                             </small>
-                            <div class="btn-group" role="group">
-                                <!-- Common View Button for all users -->
-                                <a th:href="@{/events/{id}(id=${event.eventId})}" class="btn btn-outline-primary btn-sm">
-                                    <i class="fas fa-eye"></i> View
-                                </a>
-                                
-                                <!-- Student: Register/Unregister button -->
-                                <div th:if="${isStudent}">
-                                    <div th:with="isRegistered=${@eventService.isUserRegistered(currentUser, event)}">
-                                        <!-- Register button (if not registered) -->
-                                        <a th:if="${!isRegistered}" 
-                                           th:href="@{/events/{id}/register(id=${event.eventId})}" 
-                                           class="btn btn-success btn-sm"
-                                           th:onclick="return confirm('Are you sure you want to register for this event?')">
-                                            <i class="fas fa-user-plus"></i> Register
-                                        </a>
-                                        
-                                        <!-- Unregister button (if already registered) -->
-                                        <a th:if="${isRegistered}" 
-                                           th:href="@{/events/{id}/unregister(id=${event.eventId})}" 
-                                           class="btn btn-outline-danger btn-sm"
-                                           th:onclick="return confirm('Are you sure you want to unregister from this event?')">
-                                            <i class="fas fa-user-minus"></i> Unregister
-                                        </a>
-                                    </div>
-                                </div>
-                                
-                                <!-- Admin: Full management options -->
-                                <div th:if="${isAdmin}" class="btn-group" role="group">
-                                    <a th:href="@{/events/{id}/edit(id=${event.eventId})}" class="btn btn-warning btn-sm" title="Edit Event">
-                                        <i class="fas fa-edit"></i>
+                        </div>
+                        
+                        <div class="btn-group w-100" role="group">
+                            <!-- Common View Button for all users -->
+                            <a th:href="@{/events/{id}(id=${event.eventId})}" class="btn btn-outline-primary btn-sm flex-fill">
+                                <i class="fas fa-eye"></i> View Details
+                            </a>
+                            
+                            <!-- Student: Register/Unregister button -->
+                            <div th:if="${isStudent}" class="flex-fill">
+                                <div th:with="isRegistered=${@eventService.isUserRegistered(currentUser, event)}">
+                                    <!-- Register button (if not registered) -->
+                                    <a th:if="${!isRegistered}" 
+                                       th:href="@{/events/{id}/register(id=${event.eventId})}" 
+                                       class="btn btn-primary btn-sm w-100"
+                                       th:onclick="return confirm('Are you sure you want to register for this event?')">
+                                        <i class="fas fa-user-plus"></i> Register
                                     </a>
-                                    <a th:href="@{/events/{id}/participants(id=${event.eventId})}" class="btn btn-info btn-sm" title="View Participants">
-                                        <i class="fas fa-users"></i>
-                                    </a>
-                                    <a href="#" class="btn btn-danger btn-sm" title="Delete Event"
-                                       th:onclick="'return confirm(\'Are you sure you want to delete this event?\') && deleteEvent(' + ${event.eventId} + ')'">
-                                        <i class="fas fa-trash"></i>
-                                    </a>
-                                </div>
-                                
-                                <!-- Club Head: Manage if it's their club's event -->
-                                <div th:if="${isClubHead and userClubs != null}" class="btn-group" role="group">
-                                    <a th:if="${#lists.contains(userClubs, event.club)}" 
-                                       th:href="@{/events/{id}/edit(id=${event.eventId})}" 
-                                       class="btn btn-warning btn-sm" title="Edit Event">
-                                        <i class="fas fa-edit"></i>
-                                    </a>
-                                    <a th:if="${#lists.contains(userClubs, event.club)}" 
-                                       th:href="@{/events/{id}/participants(id=${event.eventId})}" 
-                                       class="btn btn-info btn-sm" title="View Participants">
-                                        <i class="fas fa-users"></i>
+                                    
+                                    <!-- Unregister button (if already registered) -->
+                                    <a th:if="${isRegistered}" 
+                                       th:href="@{/events/{id}/unregister(id=${event.eventId})}" 
+                                       class="btn btn-outline-danger btn-sm w-100"
+                                       th:onclick="return confirm('Are you sure you want to unregister from this event?')">
+                                        <i class="fas fa-user-minus"></i> Unregister
                                     </a>
                                 </div>
                             </div>
+                        </div>
+                        
+                        <!-- Admin: Full management options -->
+                        <div th:if="${isAdmin}" class="btn-group w-100 mt-2" role="group">
+                            <a th:href="@{/events/{id}/edit(id=${event.eventId})}" class="btn btn-outline-primary btn-sm" title="Edit Event">
+                                <i class="fas fa-edit"></i> Edit
+                            </a>
+                            <a th:href="@{/events/{id}/participants(id=${event.eventId})}" class="btn btn-outline-primary btn-sm" title="View Participants">
+                                <i class="fas fa-users"></i> Participants
+                            </a>
+                            <a href="#" class="btn btn-outline-danger btn-sm" title="Delete Event"
+                               th:onclick="'return confirm(\'Are you sure you want to delete this event?\') && deleteEvent(' + ${event.eventId} + ')'">
+                                <i class="fas fa-trash"></i> Delete
+                            </a>
+                        </div>
+                        
+                        <!-- Club Head: Manage if it's their club's event -->
+                        <div th:if="${isClubHead and userClubs != null}" class="btn-group w-100 mt-2" role="group">
+                            <a th:if="${#lists.contains(userClubs, event.club)}" 
+                               th:href="@{/events/{id}/edit(id=${event.eventId})}" 
+                               class="btn btn-outline-primary btn-sm" title="Edit Event">
+                                <i class="fas fa-edit"></i> Edit
+                            </a>
+                            <a th:if="${#lists.contains(userClubs, event.club)}" 
+                               th:href="@{/events/{id}/participants(id=${event.eventId})}" 
+                               class="btn btn-outline-primary btn-sm" title="View Participants">
+                                <i class="fas fa-users"></i> Participants
+                            </a>
                         </div>
                     </div>
                 </div>
