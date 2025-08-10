@@ -1,0 +1,13 @@
+target/
+.git/
+.gitignore
+README.md
+DEPLOYMENT.md
+SETUP.md
+.env*
+.vscode/
+.idea/
+*.iml
+*.log
+.DS_Store
+Thumbs.db

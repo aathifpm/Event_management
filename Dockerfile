@@ -5,8 +5,8 @@ FROM eclipse-temurin:21-jdk-alpine AS build
 # Set the working directory
 WORKDIR /app
 
-# Copy the Maven wrapper and pom.xml file
-COPY .mvn/ .mvn
+# Copy the Maven wrapper files and pom.xml first for better caching
+COPY .mvn/ .mvn/
 COPY mvnw pom.xml ./
 
 # Make mvnw executable
