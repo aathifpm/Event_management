@@ -1,5 +1,6 @@
-# Use OpenJDK 21 as the base image
-FROM openjdk:21-jdk-slim
+# Multi-stage build for smaller final image
+# Build stage
+FROM eclipse-temurin:21-jdk-alpine AS build
 
 # Set the working directory
 WORKDIR /app
@@ -20,21 +21,24 @@ COPY src ./src
 # Build the application
 RUN ./mvnw clean package -DskipTests
 
-# Create a new stage for runtime
-FROM openjdk:21-jre-slim
+# Runtime stage
+FROM eclipse-temurin:21-jre-alpine
 
 # Set the working directory
 WORKDIR /app
 
+# Install curl for health checks (optional)
+RUN apk add --no-cache curl
+
 # Copy the JAR file from the build stage
-COPY --from=0 /app/target/*.jar app.jar
+COPY --from=build /app/target/*.jar app.jar
 
 # Expose the port
 EXPOSE $PORT
 
 # Create a non-root user for security
-RUN addgroup --system spring && adduser --system spring --ingroup spring
+RUN addgroup -S spring && adduser -S spring -G spring
 USER spring:spring
 
 # Run the application
-CMD ["java", "-Dserver.port=${PORT:-8080}", "-jar", "app.jar"]
+CMD ["java", "-Dserver.port=${PORT:-8080}", "-Xmx512m", "-Xms256m", "-jar", "app.jar"]
